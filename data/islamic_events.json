@@ -1,0 +1,79 @@
+[
+  {
+    "name_ar": "1 محرم - رأس السنة الهجرية",
+    "name_en": "Islamic New Year",
+    "hijri_month": 1,
+    "hijri_day": 1,
+    "description": "بداية السنة الهجرية، ذكرى هجرة النبي ﷺ من مكة إلى المدينة"
+  },
+  {
+    "name_ar": "10 محرم - يوم عاشوراء",
+    "name_en": "Day of Ashura",
+    "hijri_month": 1,
+    "hijri_day": 10,
+    "description": "يوم عظيم، يُستحب صيامه، قال ﷺ: صيام يوم عاشوراء أكفر الله السنة التي قبله"
+  },
+  {
+    "name_ar": "12 ربيع الأول - المولد النبوي",
+    "name_en": "Mawlid an-Nabi",
+    "hijri_month": 3,
+    "hijri_day": 12,
+    "description": "ذكرى مولد النبي محمد ﷺ"
+  },
+  {
+    "name_ar": "27 رجب - الإسراء والمعراج",
+    "name_en": "Isra and Mi'raj",
+    "hijri_month": 7,
+    "hijri_day": 27,
+    "description": "ذكرى رحلة الإسراء والمعراج، سبحان الذي أسرى بعبده ليلاً"
+  },
+  {
+    "name_ar": "15 شعبان - ليلة النصف من شعبان",
+    "name_en": "Mid-Sha'ban Night",
+    "hijri_month": 8,
+    "hijri_day": 15,
+    "description": "ليلة مباركة يُستحب فيها الصلاة والذكر والدعاء"
+  },
+  {
+    "name_ar": "1 رمضان - أول أيام رمضان",
+    "name_en": "First Day of Ramadan",
+    "hijri_month": 9,
+    "hijri_day": 1,
+    "description": "بداية شهر رمضان المبارك، شهر الصيام والقرآن"
+  },
+  {
+    "name_ar": "27 رمضان - ليلة القدر",
+    "name_en": "Laylat al-Qadr",
+    "hijri_month": 9,
+    "hijri_day": 27,
+    "description": "ليلة القدر خير من ألف شهر، إنا أنزلناه في ليلة القدر"
+  },
+  {
+    "name_ar": "1 شوال - عيد الفطر",
+    "name_en": "Eid al-Fitr",
+    "hijri_month": 10,
+    "hijri_day": 1,
+    "description": "عيد الفطر المبارك، تقبل الله منا ومنكم"
+  },
+  {
+    "name_ar": "9 ذو الحجة - يوم عرفة",
+    "name_en": "Day of Arafah",
+    "hijri_month": 12,
+    "hijri_day": 9,
+    "description": "أفضل يوم، صيامه يكفر سنة ماضية وسنة قادمة لغير الحاج"
+  },
+  {
+    "name_ar": "10 ذو الحجة - عيد الأضحى",
+    "name_en": "Eid al-Adha",
+    "hijri_month": 12,
+    "hijri_day": 10,
+    "description": "عيد الأضحى المبارك، تقبل الله منا ومنكم"
+  },
+  {
+    "name_ar": "أيام التشريق (11-13 ذو الحجة)",
+    "name_en": "Days of Tashreeq",
+    "hijri_month": 12,
+    "hijri_day": 11,
+    "description": "أيام التشريق، اذكروا الله في أيام معدودات"
+  }
+]

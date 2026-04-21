@@ -1,6 +1,6 @@
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 import discord
 from discord import app_commands
@@ -68,12 +68,18 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
         if not channel:
             return
 
-        now = datetime.now()
-        current_time = f"{now.hour:02d}:{now.minute:02d}"
-
         timings = await get_prayer_times()
         if not timings:
             return
+
+        tz_name = timings.get("_timezone", "UTC")
+        try:
+            from zoneinfo import ZoneInfo
+            now = datetime.now(ZoneInfo(tz_name))
+        except Exception:
+            now = datetime.now(timezone.utc)
+
+        current_time = f"{now.hour:02d}:{now.minute:02d}"
 
         for key in ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]:
             prayer_time = timings.get(key, "").split()[0]
@@ -92,7 +98,7 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
                 embed.set_footer(text="﴿ إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا ﴾")
                 await channel.send(embed=embed)
 
-        if now.hour == 0 and now.minute == 5:
+        if now.hour == 0 and now.minute < 5:
             self.notified_prayers.clear()
 
     @check_prayers.before_loop

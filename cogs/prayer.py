@@ -61,14 +61,14 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
         embed.set_thumbnail(url=MOSQUE_ICON)
 
         if next_prayer:
-            name, remaining = next_prayer
+            name, remaining, actual_time = next_prayer
             ar_name = PRAYER_NAMES_AR.get(name, name)
             emoji = PRAYER_EMOJIS.get(name, "⏰")
             color = PRAYER_COLORS.get(name, 0xF1C40F)
             embed.color = color
             embed.add_field(
                 name=f"{emoji} الصلاة القادمة",
-                value=f"**{ar_name}** ─ بعد **{remaining}**",
+                value=f"**{ar_name}** ─ {actual_time} ─ بعد **{remaining}**",
                 inline=False,
             )
 
@@ -166,13 +166,13 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
 
         next_p = get_next_prayer(timings)
         if next_p:
-            name, remaining = next_p
+            name, remaining, actual_time = next_p
             ar_name = PRAYER_NAMES_AR.get(name, name)
             emoji = PRAYER_EMOJIS.get(name, "⏰")
             color = PRAYER_COLORS.get(name, 0xF1C40F)
             embed = discord.Embed(
                 title=f"{emoji} الصلاة القادمة: {ar_name}",
-                description=f"⏳ متبقي **{remaining}** على صلاة **{ar_name}**\n📍 {city}, {country}",
+                description=f"🕐 وقت الأذان: **{actual_time}**\n⏳ متبقي **{remaining}** على صلاة **{ar_name}**\n📍 {city}, {country}",
                 color=color,
             )
             embed.set_thumbnail(url=MOSQUE_ICON)

@@ -1,12 +1,16 @@
+import json
 import discord
 from discord import app_commands
 from discord.ext import commands
+from pathlib import Path
 
 from utils.quran import get_random_verse, get_verse
 from utils.quran_audio import get_reciters, get_reciter_by_id, get_ayah_audio_url
 
 QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
 SPEAKER_ICON = "https://cdn-icons-png.flaticon.com/512/732/732078.png"
+
+DATA_DIR = Path(__file__).parent.parent / "data"
 
 RECITER_CHOICES = [
     app_commands.Choice(name="مشاري العفاسي", value="ar.alafasy"),
@@ -16,7 +20,29 @@ RECITER_CHOICES = [
     app_commands.Choice(name="عبد الرحمن السديس", value="ar.abdurrahmaansudais"),
     app_commands.Choice(name="سعود الشريم", value="ar.saaborimuneer"),
     app_commands.Choice(name="ماهر المعيقلي", value="ar.maaborali"),
+    app_commands.Choice(name="ياسر الدوسري", value="ar.yaserdussry"),
+    app_commands.Choice(name="صلاح البدير", value="ar.salahbudair"),
+    app_commands.Choice(name="خالد الجليل", value="ar.khalidaljaleel"),
+    app_commands.Choice(name="عبد الله الجهني", value="ar.abdullahjahny"),
+    app_commands.Choice(name="علي الحذيفي", value="ar.alihudhaify"),
+    app_commands.Choice(name="محمد أيوب", value="ar.muhammadayyoub"),
+    app_commands.Choice(name="سعد الغامدي", value="ar.saadalghamdi"),
+    app_commands.Choice(name="فارس عباد", value="ar.faresabbad"),
 ]
+
+
+async def allah_name_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    with open(DATA_DIR / "allah_names.json", encoding="utf-8") as f:
+        names = json.load(f)
+    choices = []
+    for n in names:
+        label = f"{n['ar']} - {n['en']}"
+        if current.lower() in n["ar"] or current.lower() in n["en"].lower() or current in str(n["number"]):
+            choices.append(app_commands.Choice(name=label[:100], value=n["ar"]))
+    return choices[:25]
 
 
 class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
@@ -51,7 +77,6 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         await interaction.response.defer()
 
         reciter_id = reciter or "ar.alafasy"
-        reciter_info = get_reciter_by_id(reciter_id)
 
         if surah and ayah:
             verse = await get_verse(surah, ayah)
@@ -67,6 +92,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
             return
 
         audio_url = get_ayah_audio_url(verse["surah_number"] * 1000 + verse["ayah_number"], reciter_id)
+        reciter_info = get_reciter_by_id(reciter_id)
 
         voice_channel = interaction.user.voice.channel
         guild_id = interaction.guild_id
@@ -94,7 +120,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         reciter_name = reciter_info["name"] if reciter_info else reciter_id
 
         embed = discord.Embed(
-            title="🔊 يتم تشغيل آية قرآنية",
+            title="� يتم تشغيل آية قرآنية",
             description=f"\n{verse['text']}\n",
             color=0x196F3D,
         )
@@ -146,7 +172,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         reciters = get_reciters()
         lines = []
         for r in reciters:
-            lines.append(f"🎤 **{r['name']}**")
+            lines.append(f"🎤 **{r['name']}** ─ `{r['id']}`")
 
         embed = discord.Embed(
             title="🎤 القُرّاء المتاحون",
@@ -158,38 +184,26 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="allah-name", description="✨ اسم من أسماء الله الحسنى مع المعنى")
-    @app_commands.describe(number="رقم الاسم (1-99) ─ اتركه فارغ لعشوائي")
-    async def allah_name(self, interaction: discord.Interaction, number: int | None = None):
-        from utils.quran_audio import get_random_allah_name
-        import json
-        from pathlib import Path
-
-        if number is not None:
-            if number < 1 or number > 99:
-                embed = discord.Embed(
-                    title="❌ رقم غير صحيح",
-                    description="الرقم يجب أن يكون بين 1 و 99",
-                    color=0xE74C3C,
-                )
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
-
-            data_dir = Path(__file__).parent.parent / "data"
-            with open(data_dir / "allah_names.json", encoding="utf-8") as f:
+    @app_commands.describe(name="اختر اسم أو اتركه فارغ لعشوائي")
+    @app_commands.autocomplete(name=allah_name_autocomplete)
+    async def allah_name(self, interaction: discord.Interaction, name: str | None = None):
+        if name:
+            with open(DATA_DIR / "allah_names.json", encoding="utf-8") as f:
                 names = json.load(f)
-            name = next((n for n in names if n["number"] == number), None)
-            if not name:
-                name = get_random_allah_name()
+            selected = next((n for n in names if n["ar"] == name), None)
+            if not selected:
+                selected = get_random_allah_name()
         else:
-            name = get_random_allah_name()
+            from utils.quran_audio import get_random_allah_name
+            selected = get_random_allah_name()
 
         embed = discord.Embed(
-            title=f"✨ {name['ar']} ─ {name['en']}",
-            description=f"**{name['meaning']}**",
+            title=f"✨ {selected['ar']} ─ {selected['en']}",
+            description=f"**{selected['meaning']}**",
             color=0xF1C40F,
         )
         embed.set_thumbnail(url=QURAN_ICON)
-        embed.set_footer(text=f"الاسم رقم {name['number']} من ٩٩ اسم من أسماء الله الحسنى ﴿ وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ ﴾")
+        embed.set_footer(text=f"الاسم رقم {selected['number']} من ٩٩ اسم من أسماء الله الحسنى ﴿ وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ ﴾")
         await interaction.response.send_message(embed=embed)
 
     async def cog_unload(self):

@@ -33,5 +33,45 @@
     "id": "ar.maaborali",
     "name": "ماهر المعيقلي",
     "english": "Maher Al Muaiqly"
+  },
+  {
+    "id": "ar.yaserdussry",
+    "name": "ياسر الدوسري",
+    "english": "Yasser Al-Dosari"
+  },
+  {
+    "id": "ar.salahbudair",
+    "name": "صلاح البدير",
+    "english": "Salah Al-Budair"
+  },
+  {
+    "id": "ar.khalidaljaleel",
+    "name": "خالد الجليل",
+    "english": "Khalid Al-Jaleel"
+  },
+  {
+    "id": "ar.abdullahjahny",
+    "name": "عبد الله الجهني",
+    "english": "Abdullah Al-Juhany"
+  },
+  {
+    "id": "ar.alihudhaify",
+    "name": "علي الحذيفي",
+    "english": "Ali Al-Hudhaify"
+  },
+  {
+    "id": "ar.muhammadayyoub",
+    "name": "محمد أيوب",
+    "english": "Muhammad Ayyub"
+  },
+  {
+    "id": "ar.saadalghamdi",
+    "name": "سعد الغامدي",
+    "english": "Saad Al-Ghamdi"
+  },
+  {
+    "id": "ar.faresabbad",
+    "name": "فارس عباد",
+    "english": "Fares Abbad"
   }
 ]

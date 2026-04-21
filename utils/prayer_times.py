@@ -105,7 +105,20 @@ def format_prayer_times(timings: dict) -> str:
     return "\n".join(lines)
 
 
-def get_next_prayer(timings: dict) -> tuple[str, str] | None:
+def _to_12h(time_24: str) -> str:
+    """Convert HH:MM 24-hour to Arabic 12-hour format."""
+    try:
+        dt = datetime.strptime(time_24, "%H:%M")
+        h = dt.hour
+        period = "ص" if h < 12 else "م"
+        h12 = h % 12 or 12
+        return f"{h12}:{dt.minute:02d} {period}"
+    except ValueError:
+        return time_24
+
+
+def get_next_prayer(timings: dict) -> tuple[str, str, str] | None:
+    """Returns (key, remaining_text, actual_time_12h) or None."""
     tz_name = timings.get("_timezone", "UTC")
     try:
         from zoneinfo import ZoneInfo
@@ -118,14 +131,16 @@ def get_next_prayer(timings: dict) -> tuple[str, str] | None:
     for key in ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]:
         time_str = timings.get(key, "")
         try:
-            t = datetime.strptime(_clean_time(time_str), "%H:%M")
+            time_24 = _clean_time(time_str)
+            t = datetime.strptime(time_24, "%H:%M")
             prayer_minutes = t.hour * 60 + t.minute
             if prayer_minutes > now_minutes:
                 remaining = prayer_minutes - now_minutes
                 hours, mins = divmod(remaining, 60)
+                time_12h = _to_12h(time_24)
                 if hours > 0:
-                    return key, f"{hours} ساعة و {mins} دقيقة"
-                return key, f"{mins} دقيقة"
+                    return key, f"{hours} ساعة و {mins} دقيقة", time_12h
+                return key, f"{mins} دقيقة", time_12h
         except ValueError:
             continue
     return None

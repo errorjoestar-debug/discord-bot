@@ -159,6 +159,19 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
                 embed.set_footer(text="MuslimBot")
                 await interaction.followup.send(embed=embed)
                 return
+            except discord.errors.ConnectionClosed as e:
+                print(f"WebSocket connection error: {e}")
+                if e.code == 4006:
+                    embed = discord.Embed(
+                        title="❌ مشكلة في الاتصال الصوتي مع Discord",
+                        description="خطأ: WebSocket closed with code 4006\n\n**الأسباب المحتملة:**\n1. مشكلة مؤقتة في خادم Discord الصوتي\n2. مشاكل في الاتصال بالإنترنت\n3. مشاكل في NAT/firewall\n\n**الحلول:**\n1. حاول تغيير الروم الصوتي\n2. انتظر قليلاً ثم حاول مجدداً\n3. تأكد من استقرار اتصال الإنترنت",
+                        color=0xE74C3C,
+                    )
+                    embed.set_footer(text="MuslimBot")
+                    await interaction.followup.send(embed=embed)
+                    return
+                else:
+                    raise
             except Exception as e:
                 print(f"Voice connection error: {e}")
                 embed = discord.Embed(

@@ -15,9 +15,9 @@ log = logging.getLogger(__name__)
 MORNING_TIME = time(5, 30)
 EVENING_TIME = time(16, 0)
 
-MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/2382/2382006.png"
-BOOK_ICON = "https://cdn-icons-png.flaticon.com/512/2998/2998551.png"
-CALENDAR_ICON = "https://cdn-icons-png.flaticon.com/512/3658/3658802.png"
+MOSQUE_ICON = "https://images.unsplash.com/photo-1564769625688-478c7a3c38b6?w=800&q=80"
+BOOK_ICON = "https://images.unsplash.com/photo-1576413329366-5b2c6e0463e4?w=800&q=80"
+CALENDAR_ICON = "https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=800&q=80"
 
 AZKAR_CONFIG = {
     "morning": {
@@ -66,7 +66,7 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
             color=0x27AE60,
         )
         embed.set_thumbnail(url=MOSQUE_ICON)
-        embed.set_footer(text="﴿ وَاذْكُر رَّبَّكَ كَثِيرًا ﴾")
+        embed.set_footer(text="﴿ وَاذْكُر رَّبَّكَ كَثِيرًا ﴾ • MuslimBot")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="azkar-off", description="🔕 إيقاف إرسال الأذكار التلقائية")
@@ -76,10 +76,12 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
             self.auto_azkar_loop.cancel()
 
         embed = discord.Embed(
-            title="⛔ تم إيقاف الأذكار التلقائية",
-            description="لن يتم إرسال أذكار تلقائية",
+            title="❌ تم تعطيل الأذكار التلقائية",
+            description="تم إيقاف الأذكار التلقائية",
             color=0xE74C3C,
         )
+        embed.set_thumbnail(url=BOOK_ICON)
+        embed.set_footer(text="أذكار تلقائية • MuslimBot")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="events", description="📅 عرض المناسبات والأحداث الإسلامية القادمة")
@@ -103,10 +105,12 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
 
         if not upcoming:
             embed = discord.Embed(
-                title="📅 المناسبات الإسلامية",
-                description="لا توجد مناسبات إسلامية قريبة",
-                color=0x3498DB,
+                title="📅 الأحداث الإسلامية اليوم",
+                description="لا توجد أحداث إسلامية اليوم",
+                color=0x9B59B6,
             )
+            embed.set_thumbnail(url=CALENDAR_ICON)
+            embed.set_footer(text="مناسبات إسلامية • MuslimBot")
             await interaction.followup.send(embed=embed)
             return
 
@@ -115,6 +119,7 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
             color=0x3498DB,
         )
         embed.set_thumbnail(url=CALENDAR_ICON)
+        embed.set_footer(text="مناسبات إسلامية • MuslimBot")
 
         for ev in upcoming[:5]:
             days = ev["days_until"]
@@ -164,7 +169,7 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
                 )
                 if i == 0:
                     embed.set_thumbnail(url=BOOK_ICON)
-                embed.set_footer(text=config["footer"])
+                embed.set_footer(text=f"{config['footer']} • MuslimBot")
                 await channel.send(embed=embed)
 
         if not self.evening_sent and current_time >= EVENING_TIME:
@@ -181,10 +186,10 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
                 )
                 if i == 0:
                     embed.set_thumbnail(url=BOOK_ICON)
-                embed.set_footer(text=config["footer"])
+                embed.set_footer(text=f"{config['footer']} • MuslimBot")
                 await channel.send(embed=embed)
 
-        if current_time.hour == 8 and current_time.minute < 5:
+        if current_time.hour == 8 and current_time.minute == 0:
             hijri = await get_hijri_date()
             if hijri:
                 hijri_month = int(hijri.get("month", {}).get("number", 1))
@@ -198,7 +203,7 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
                         color=0xF1C40F,
                     )
                     embed.set_thumbnail(url=CALENDAR_ICON)
-                    embed.set_footer(text="﴿ وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى ﴾")
+                    embed.set_footer(text="﴿ وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى ﴾ • MuslimBot")
                     await channel.send(embed=embed)
 
     @auto_azkar_loop.before_loop

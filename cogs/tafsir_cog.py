@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from utils.tafsir import get_tafsir
 
-QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/3564/3564299.png"
+QURAN_ICON = "https://images.unsplash.com/photo-1576413329366-5b2c6e0463e4?w=800&q=80"
 
 
 class TafsirCog(commands.Cog, name="التفسير"):
@@ -27,6 +27,7 @@ class TafsirCog(commands.Cog, name="التفسير"):
                 description="رقم السورة يجب أن يكون بين 1 و 114",
                 color=0xE74C3C,
             )
+            embed.set_footer(text="MuslimBot")
             await interaction.followup.send(embed=embed)
             return
 
@@ -37,6 +38,7 @@ class TafsirCog(commands.Cog, name="التفسير"):
                 description="تأكّد من صِحّة رقم السورة والآية",
                 color=0xE74C3C,
             )
+            embed.set_footer(text="MuslimBot")
             await interaction.followup.send(embed=embed)
             return
 
@@ -46,18 +48,19 @@ class TafsirCog(commands.Cog, name="التفسير"):
         for i, chunk in enumerate(chunks):
             if i == 0:
                 embed = discord.Embed(
-                    title=f"📖 تفسير سورة {result['surah_name']} ─ الآية {result['ayah_number']}",
+                    title=f"📖 التفسير الميسر - سورة {result['surah_name']} آية {result['ayah_number']}",
                     description=chunk,
-                    color=0x196F3D,
+                    color=0x8E44AD,
                 )
                 embed.set_thumbnail(url=QURAN_ICON)
+                embed.set_footer(text="﴿ وَأَنزَلْنَا إِلَيْكَ الذِّكْرَ لِتُبَيِّنَ لِلنَّاسِ مَا نُزِّلَ إِلَيْهِمْ ﴾ • MuslimBot")
             else:
                 embed = discord.Embed(
                     description=chunk,
                     color=0x196F3D,
                 )
             if len(chunks) > 1:
-                embed.set_footer(text=f"الجزء {i+1} من {len(chunks)} ─ التفسير الميسر")
+                embed.set_footer(text=f"الجزء {i+1} من {len(chunks)} • MuslimBot")
             else:
                 embed.set_footer(text="التفسير الميسر ─ ﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ ﴾")
             await interaction.followup.send(embed=embed)

@@ -73,5 +73,65 @@
     "id": "ar.faresabbad",
     "name": "فارس عباد",
     "english": "Fares Abbad"
+  },
+  {
+    "id": "ar.haniarifai",
+    "name": "هاني الرفاعي",
+    "english": "Hani Ar-Rifai"
+  },
+  {
+    "id": "ar.abdulbasitabdussamad",
+    "name": "عبد الباسط عبد الصمد",
+    "english": "Abdul Basit (Abdus Samad)"
+  },
+  {
+    "id": "ar.husarymuajjam",
+    "name": "محمود خليل الحصري (مجود)",
+    "english": "Husary (Muajjam)"
+  },
+  {
+    "id": "ar.ahmedajami",
+    "name": "أحمد العجمي",
+    "english": "Ahmed Al-Ajmi"
+  },
+  {
+    "id": "ar.shatri",
+    "name": "عبد الرشيد صافي",
+    "english": "Abdur-Rashid Sufi"
+  },
+  {
+    "id": "ar.parhizgar",
+    "name": "محمد صديق المنشاوي (مرتل)",
+    "english": "Minshawi (Murattal)"
+  },
+  {
+    "id": "ar.husarymujawwad",
+    "name": "محمود خليل الحصري (مجوّد)",
+    "english": "Husary (Mujawwad)"
+  },
+  {
+    "id": "ar.abdulbasitmurattal2",
+    "name": "عبد الباسط عبد الصمد (مرتل 2)",
+    "english": "Abdul Basit (Murattal 2)"
+  },
+  {
+    "id": "ar.mahmoudkhalilalhussary",
+    "name": "محمود خليل الحصري",
+    "english": "Mahmoud Khalil Al-Hussary"
+  },
+  {
+    "id": "ar.shahri",
+    "name": "إدريس أبكر",
+    "english": "Idris Abkar"
+  },
+  {
+    "id": "ar.bandarbalila",
+    "name": "بندر بليلة",
+    "english": "Bandar Balila"
+  },
+  {
+    "id": "ar.maheraiq",
+    "name": "ماهر المعيقلي (حفص)",
+    "english": "Maher Al-Muaiqly (Hafs)"
   }
 ]

@@ -31,6 +31,8 @@ COGS = [
     "cogs.settings_cog",
     "cogs.reminders",
     "cogs.auto_azkar",
+    "cogs.welcome_cog",
+    "cogs.help_cog",
 ]
 
 

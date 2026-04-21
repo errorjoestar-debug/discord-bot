@@ -11,8 +11,8 @@ from utils.server_settings import get_server_city
 
 log = logging.getLogger(__name__)
 
-MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/2382/2382006.png"
-BELL_ICON = "https://cdn-icons-png.flaticon.com/512/5656/5656315.png"
+MOSQUE_ICON = "https://images.unsplash.com/photo-1564769625688-478c7a3c38b6?w=800&q=80"
+BELL_ICON = "https://images.unsplash.com/photo-1542384385-8c8a8495a948?w=800&q=80"
 
 
 class RemindersCog(commands.Cog, name="التنبيهات"):
@@ -37,12 +37,12 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
             self.check_prayers.start()
 
         embed = discord.Embed(
-            title="✅ تم تفعيل التنبيهات",
-            description="سيتم إرسال تنبيه عند حلول كل صلاة في هذه القناة تلقائيًا",
-            color=0x27AE60,
+            title="🔔 تم تفعيل التنبيهات",
+            description=f"سيتم إرسال التنبيهات في هذا الروم قبل كل صلاة",
+            color=0x2ECC71,
         )
         embed.set_thumbnail(url=BELL_ICON)
-        embed.set_footer(text="﴿ حَافِظُوا عَلَى الصَّلَوَاتِ ﴾")
+        embed.set_footer(text="تنبيهات صلاة • MuslimBot")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="remind-off", description="🔕 إيقاف تنبيهات الأذان التلقائية")
@@ -53,11 +53,12 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
             self.check_prayers.cancel()
 
         embed = discord.Embed(
-            title="⛔ تم إيقاف التنبيهات",
-            description="لن يتم إرسال تنبيهات الصلاة",
+            title="🔕 تم تعطيل التنبيهات",
+            description="تم إيقاف التنبيهات",
             color=0xE74C3C,
         )
         embed.set_thumbnail(url=BELL_ICON)
+        embed.set_footer(text="تنبيهات صلاة • MuslimBot")
         await interaction.response.send_message(embed=embed)
 
     @tasks.loop(minutes=1)
@@ -100,8 +101,8 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
                     description=f"حيّ على الصلاة! حان وقت صلاة **{ar_name}**\nأقيموا الصلاة بارك الله فيكم 🤲",
                     color=color,
                 )
-                embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/2382/2382006.png")
-                embed.set_footer(text="﴿ إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا ﴾")
+                embed.set_thumbnail(url=MOSQUE_ICON)
+                embed.set_footer(text="﴿ إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا ﴾ • MuslimBot")
                 await channel.send(embed=embed)
 
         if now.hour == 0 and now.minute < 5:

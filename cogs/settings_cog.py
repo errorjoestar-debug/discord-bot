@@ -4,8 +4,9 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils.server_settings import set_server_city, get_server_city
+from utils.user_settings import set_user_reciter, get_user_reciter, set_user_city, get_user_city
 
-GEAR_ICON = "https://cdn-icons-png.flaticon.com/512/6464/6464105.png"
+GEAR_ICON = "https://images.unsplash.com/photo-1526694456423-8e8db921553c?w=800&q=80"
 
 METHODS = {
     1: "University of Islamic Sciences, Karachi",
@@ -53,14 +54,15 @@ class SettingsCog(commands.Cog, name="إعدادات السيرفر"):
         method_name = METHODS.get(method, "غير معروف")
 
         embed = discord.Embed(
-            title="✅ تم حفظ إعدادات المدينة",
-            color=0x27AE60,
+            title="⚙️ تم حفظ الإعدادات",
+            description=f"تم تعيين مدينة الصلاة إلى **{city}**، {country}\nطريقة الحساب: {method_name}",
+            color=0x2ECC71,
         )
         embed.set_thumbnail(url=GEAR_ICON)
         embed.add_field(name="🏙️ المدينة", value=f"**{city}**", inline=True)
         embed.add_field(name="🌍 الدولة", value=f"**{country}**", inline=True)
         embed.add_field(name="📐 طريقة الحساب", value=f"**{method}** ─ {method_name}", inline=False)
-        embed.set_footer(text="دلوقتي أوامر الصلاة هتستخدم المدينة دي تلقائياً")
+        embed.set_footer(text="الآن أوامر الصلاة ستستخدم المدينة تلقائياً • MuslimBot")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="settings", description="⚙️ عرض إعدادات السيرفر الحالية")
@@ -77,14 +79,17 @@ class SettingsCog(commands.Cog, name="إعدادات السيرفر"):
         if result:
             city, country, method = result
             method_name = METHODS.get(method, "غير معروف")
+            settings_text = f"مدينة الصلاة: **{city}**، {country}\nطريقة الحساب: {method_name}"
             embed = discord.Embed(
                 title="⚙️ إعدادات السيرفر",
+                description=settings_text,
                 color=0x3498DB,
             )
             embed.set_thumbnail(url=GEAR_ICON)
             embed.add_field(name="🏙️ المدينة", value=f"**{city}**", inline=True)
             embed.add_field(name="🌍 الدولة", value=f"**{country}**", inline=True)
             embed.add_field(name="📐 طريقة الحساب", value=f"**{method}** ─ {method_name}", inline=False)
+            embed.set_footer(text="إعدادات السيرفر • MuslimBot")
         else:
             default_city = os.getenv("PRAYER_CITY", "Cairo")
             default_country = os.getenv("PRAYER_COUNTRY", "EG")
@@ -101,6 +106,68 @@ class SettingsCog(commands.Cog, name="إعدادات السيرفر"):
             )
 
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="my-reciter", description="🎙️ تعيين القارئ المفضل الخاص بك")
+    @app_commands.describe(reciter="معرف القارئ (مثال: ar.alafasy)")
+    async def set_my_reciter(
+        self,
+        interaction: discord.Interaction,
+        reciter: str,
+    ):
+        set_user_reciter(interaction.user.id, reciter)
+        embed = discord.Embed(
+            title="✅ تم حفظ القارئ المفضل",
+            description=f"القارئ: **{reciter}**",
+            color=0x2ECC71,
+        )
+        embed.set_thumbnail(url=GEAR_ICON)
+        embed.set_footer(text="الإعدادات الشخصية • MuslimBot")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="my-city", description="🏙️ تعيين مدينتك الشخصية")
+    @app_commands.describe(
+        city="اسم المدينة (مثال: Cairo)",
+        country="كود الدولة (مثال: EG)",
+    )
+    async def set_my_city(
+        self,
+        interaction: discord.Interaction,
+        city: str,
+        country: str,
+    ):
+        set_user_city(interaction.user.id, city, country)
+        embed = discord.Embed(
+            title="✅ تم حفظ المدينة المفضلة",
+            description=f"المدينة: **{city}**، {country}",
+            color=0x2ECC71,
+        )
+        embed.set_thumbnail(url=GEAR_ICON)
+        embed.set_footer(text="الإعدادات الشخصية • MuslimBot")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="my-settings", description="⚙️ عرض إعداداتك الشخصية")
+    async def show_my_settings(self, interaction: discord.Interaction):
+        reciter = get_user_reciter(interaction.user.id)
+        city_country = get_user_city(interaction.user.id)
+        
+        embed = discord.Embed(
+            title="⚙️ إعداداتك الشخصية",
+            color=0x3498DB,
+        )
+        embed.set_thumbnail(url=GEAR_ICON)
+        
+        if reciter:
+            embed.add_field(name="🎙️ القارئ المفضل", value=f"`{reciter}`", inline=False)
+        else:
+            embed.add_field(name="🎙️ القارئ المفضل", value="لم يتم تعيين", inline=False)
+        
+        if city_country:
+            embed.add_field(name="🏙️ المدينة المفضلة", value=f"**{city_country[0]}**، {city_country[1]}", inline=False)
+        else:
+            embed.add_field(name="🏙️ المدينة المفضلة", value="لم يتم تعيين", inline=False)
+        
+        embed.set_footer(text="الإعدادات الشخصية • MuslimBot")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot: commands.Bot):

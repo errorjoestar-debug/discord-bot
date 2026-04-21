@@ -28,9 +28,17 @@ def get_random_hadith() -> dict:
     return random.choice(hadiths)
 
 
+def get_hadith_list() -> list[dict]:
+    return _load_json("hadith.json")
+
+
 def get_random_dua() -> dict:
     duas = _load_json("dua.json")
     return random.choice(duas)
+
+
+def get_dua_list() -> list[dict]:
+    return _load_json("dua.json")
 
 
 def format_azkar(azkar_list: list[dict], title: str) -> str:

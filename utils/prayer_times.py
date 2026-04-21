@@ -145,4 +145,52 @@ def get_next_prayer(timings: dict) -> tuple[str, str, str] | None:
                 return key, f"{mins} دقيقة", time_12h
         except ValueError:
             continue
+    
+    # If no prayer left today, return Fajr for tomorrow
+    fajr_time = timings.get("Fajr", "")
+    if fajr_time:
+        try:
+            time_24 = _clean_time(fajr_time)
+            t = datetime.strptime(time_24, "%H:%M")
+            fajr_minutes = t.hour * 60 + t.minute
+            remaining = (24 * 60 - now_minutes) + fajr_minutes
+            hours, mins = divmod(remaining, 60)
+            time_12h = _to_12h(time_24)
+            if hours > 0:
+                return "Fajr", f"{hours} ساعة و {mins} دقيقة", time_12h
+            return "Fajr", f"{mins} دقيقة", time_12h
+        except ValueError:
+            pass
+    
     return None
+
+
+async def get_sun_times(
+    city: str | None = None,
+    country: str | None = None,
+    method: int | None = None,
+) -> dict | None:
+    city = city or os.getenv("PRAYER_CITY", "Cairo")
+    country = country or os.getenv("PRAYER_COUNTRY", "EG")
+    if method is None:
+        method = int(os.getenv("PRAYER_METHOD", "5"))
+
+    params = {"city": city, "country": country, "method": method}
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(ALADHAN_API, params=params) as resp:
+                if resp.status != 200:
+                    return None
+                data = await resp.json()
+                if data.get("code") != 200:
+                    return None
+                timings = data["data"]["timings"]
+                return {
+                    "sunrise": timings.get("Sunrise", "").split()[0],
+                    "sunset": timings.get("Sunset", "").split()[0],
+                    "midday": timings.get("Dhuhr", "").split()[0],
+                    "timezone": data["data"]["meta"].get("timezone", "UTC"),
+                }
+    except Exception:
+        return None

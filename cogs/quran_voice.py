@@ -7,8 +7,8 @@ from pathlib import Path
 from utils.quran import get_random_verse, get_verse
 from utils.quran_audio import get_reciters, get_reciter_by_id, get_ayah_audio_url, get_random_allah_name
 
-QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/3564/3564299.png"
-SPEAKER_ICON = "https://cdn-icons-png.flaticon.com/512/4248/4248710.png"
+QURAN_ICON = "https://images.unsplash.com/photo-1576413329366-5b2c6e0463e4?w=800&q=80"
+SPEAKER_ICON = "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800&q=80"
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -50,6 +50,9 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         self.bot = bot
         self.voice_clients: dict[int, discord.VoiceClient] = {}
         self.current_reciter: dict[int, str] = {}
+        self.queues: dict[int, list[dict]] = {}
+        self.current_track: dict[int, dict] = {}
+        self.looping: dict[int, bool] = {}
 
     @app_commands.command(name="quran-play", description="🔊 تشغيل تلاوة آية قرآنية في الروم الصوتي")
     @app_commands.describe(
@@ -67,10 +70,11 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
     ):
         if not interaction.user.voice:
             embed = discord.Embed(
-                title="❌ لازم تكون في روم صوتي",
-                description="ادخل روم صوتي الأوّل وبعدين شغّل القرآن",
+                title="❌ أنت لست في روم صوتي",
+                description="يجب أن تكون في روم صوتي لاستخدام هذا الأمر",
                 color=0xE74C3C,
             )
+            embed.set_footer(text="MuslimBot")
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
@@ -89,6 +93,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
                 description="حاول مرّة أخرى لاحقًا",
                 color=0xE74C3C,
             )
+            embed.set_footer(text="MuslimBot")
             await interaction.followup.send(embed=embed)
             return
 
@@ -110,6 +115,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
                     description=str(e),
                     color=0xE74C3C,
                 )
+                embed.set_footer(text="MuslimBot")
                 await interaction.followup.send(embed=embed)
                 return
 
@@ -122,27 +128,11 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
 
         embed = discord.Embed(
             title="🔊 يتم تشغيل تلاوة قرآنية",
-            description=f"\n{verse['text']}\n",
-            color=0x196F3D,
+            description=f"**{verse['text']}**\n\n📖 سورة {verse['surah_name']} - آية {verse['ayah_number']}\n🎙️ القارئ: {reciter_name}",
+            color=0x9B59B6,
         )
         embed.set_thumbnail(url=SPEAKER_ICON)
-        embed.add_field(
-            name="📍 السورة",
-            value=f"**{verse['surah_name']}** ({verse['surah_english']})",
-            inline=True,
-        )
-        embed.add_field(
-            name="🔢 رقم الآية",
-            value=str(verse["ayah_number"]),
-            inline=True,
-        )
-        embed.add_field(
-            name="🎤 القارئ",
-            value=reciter_name,
-            inline=False,
-        )
-        embed.set_footer(text="﴿ وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا ﴾")
-
+        embed.set_footer(text="﴿ فَاقْرَءُوا مَا تَيَسَّرَ مِنَ الْقُرْآنِ ﴾ • MuslimBot")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="quran-stop", description="⏹️ إيقاف التلاوة والخروج من الروم الصوتي")
@@ -159,13 +149,15 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
                 description="تم الخروج من الروم الصوتي",
                 color=0x95A5A6,
             )
+            embed.set_footer(text="MuslimBot")
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(
-                title="❌ لا توجد تلاوة قيد التشغيل",
-                description="البوت ليس موجودًا في أي روم صوتي",
+                title="❌ لا يوجد تلاوة قيد التشغيل",
+                description="لا يوجد تلاوة قرآنية قيد التشغيل حالياً",
                 color=0xE74C3C,
             )
+            embed.set_footer(text="MuslimBot")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name="reciters", description="🎤 عرض القُرّاء المتاحين للتلاوة")
@@ -176,12 +168,12 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
             lines.append(f"🎤 **{r['name']}** ─ `{r['id']}`")
 
         embed = discord.Embed(
-            title="🎤 القُرّاء المتاحون",
-            description="\n".join(lines),
-            color=0x196F3D,
+            title="🎙️ قائمة القُرّاء",
+            description="اختر القارئ الذي تفضّله لتشغيل التلاوات",
+            color=0x3498DB,
         )
         embed.set_thumbnail(url=SPEAKER_ICON)
-        embed.set_footer(text="اختر القارئ من القائمة في أمر /quran-play ─ ﴿ وَرَتِّلِ ٱلْقُرْءَانَ تَرْتِيلًا ﴾")
+        embed.set_footer(text="القارئ الافتراضي: مشاري العفاسي • MuslimBot")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="allah-name", description="✨ اسم من أسماء الله الحسنى مع معناه")
@@ -198,12 +190,115 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
             selected = get_random_allah_name()
 
         embed = discord.Embed(
-            title=f"✨ {selected['ar']} ─ {selected['en']}",
-            description=f"**{selected['meaning']}**",
-            color=0xF1C40F,
+            title="🌟 اسم من أسماء الله الحسنى",
+            description=f"**{selected['ar']}**\n\n{selected['meaning']}",
+            color=0xF39C12,
         )
         embed.set_thumbnail(url=QURAN_ICON)
-        embed.set_footer(text=f"الاسم رقم {selected['number']} من ٩٩ اسم من أسماء الله الحسنى ﴿ وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ ﴾")
+        embed.set_footer(text="﴿ وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَى فَادْعُوهُ بِهَا ﴾ • MuslimBot")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="quran-queue", description="📋 عرض قائمة التشغيل")
+    async def show_queue(self, interaction: discord.Interaction):
+        guild_id = interaction.guild_id
+        if not guild_id:
+            await interaction.response.send_message("هذا الأمر للسيرفرات فقط", ephemeral=True)
+            return
+
+        queue = self.queues.get(guild_id, [])
+        current = self.current_track.get(guild_id)
+        
+        if not queue and not current:
+            embed = discord.Embed(
+                title="📋 قائمة التشغيل فارغة",
+                description="أضف آيات باستخدام `/quran-play`",
+                color=0x95A5A6,
+            )
+            embed.set_thumbnail(url=SPEAKER_ICON)
+            embed.set_footer(text="قائمة التشغيل • MuslimBot")
+            await interaction.response.send_message(embed=embed)
+            return
+
+        lines = []
+        if current:
+            lines.append(f"🔊 **الآن:** {current['surah_name']} - آية {current['ayah_number']}")
+        
+        if queue:
+            lines.append("\n**التالي:**")
+            for i, track in enumerate(queue[:10], 1):
+                lines.append(f"{i}. {track['surah_name']} - آية {track['ayah_number']}")
+            if len(queue) > 10:
+                lines.append(f"\n... و {len(queue) - 10} آية أخرى")
+
+        embed = discord.Embed(
+            title="📋 قائمة التشغيل",
+            description="\n".join(lines) if lines else "فارغة",
+            color=0x3498DB,
+        )
+        embed.set_thumbnail(url=SPEAKER_ICON)
+        embed.set_footer(text=f"إجمالي: {len(queue)} آية • MuslimBot")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="quran-skip", description="⏭️ تخطي التلاوة الحالية")
+    async def skip_track(self, interaction: discord.Interaction):
+        guild_id = interaction.guild_id
+        if not guild_id:
+            await interaction.response.send_message("هذا الأمر للسيرفرات فقط", ephemeral=True)
+            return
+
+        if guild_id in self.voice_clients and self.voice_clients[guild_id].is_playing():
+            self.voice_clients[guild_id].stop()
+            embed = discord.Embed(
+                title="⏭️ تم التخطي",
+                description="جاري تشغيل الآية التالية...",
+                color=0xF39C12,
+            )
+            embed.set_footer(text="قائمة التشغيل • MuslimBot")
+            await interaction.response.send_message(embed=embed)
+        else:
+            embed = discord.Embed(
+                title="❌ لا يوجد تلاوة قيد التشغيل",
+                color=0xE74C3C,
+            )
+            embed.set_footer(text="قائمة التشغيل • MuslimBot")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="quran-loop", description="🔁 تفعيل/تعطيل التكرار")
+    async def toggle_loop(self, interaction: discord.Interaction):
+        guild_id = interaction.guild_id
+        if not guild_id:
+            await interaction.response.send_message("هذا الأمر للسيرفرات فقط", ephemeral=True)
+            return
+
+        self.looping[guild_id] = not self.looping.get(guild_id, False)
+        is_looping = self.looping[guild_id]
+        
+        embed = discord.Embed(
+            title="🔁 التكرار",
+            description=f"تم {'تفعيل' if is_looping else 'تعطيل'} التكرار",
+            color=0x27AE60 if is_looping else 0xE74C3C,
+        )
+        embed.set_thumbnail(url=SPEAKER_ICON)
+        embed.set_footer(text="قائمة التشغيل • MuslimBot")
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="quran-clear", description="🗑️ مسح قائمة التشغيل")
+    async def clear_queue(self, interaction: discord.Interaction):
+        guild_id = interaction.guild_id
+        if not guild_id:
+            await interaction.response.send_message("هذا الأمر للسيرفرات فقط", ephemeral=True)
+            return
+
+        self.queues[guild_id] = []
+        self.looping[guild_id] = False
+        
+        embed = discord.Embed(
+            title="🗑️ تم مسح قائمة التشغيل",
+            description="تم إفراغ قائمة التشغيل",
+            color=0xE74C3C,
+        )
+        embed.set_thumbnail(url=SPEAKER_ICON)
+        embed.set_footer(text="قائمة التشغيل • MuslimBot")
         await interaction.response.send_message(embed=embed)
 
     async def cog_unload(self):

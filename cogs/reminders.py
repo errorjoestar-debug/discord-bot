@@ -6,9 +6,12 @@ import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 
-from utils.prayer_times import get_prayer_times, PRAYER_NAMES_AR, PRAYER_EMOJIS
+from utils.prayer_times import get_prayer_times, PRAYER_NAMES_AR, PRAYER_EMOJIS, PRAYER_COLORS
 
 log = logging.getLogger(__name__)
+
+MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
+BELL_ICON = "https://cdn-icons-png.flaticon.com/512/1827/1827347.png"
 
 
 class RemindersCog(commands.Cog, name="التنبيهات"):
@@ -34,9 +37,11 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
 
         embed = discord.Embed(
             title="✅ تم تفعيل التنبيهات",
-            description="سيتم إرسال تنبيه قبل كل صلاة في هذه القناة",
-            color=discord.Color.green(),
+            description="سيتم إرسال تنبيه عند حلول كل صلاة في هذه القناة",
+            color=0x27AE60,
         )
+        embed.set_thumbnail(url=BELL_ICON)
+        embed.set_footer(text="﴿ حَافِظُوا عَلَى الصَّلَوَاتِ ﴾")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="remind-off", description="🔕 إيقاف تنبيهات الصلاة")
@@ -49,8 +54,9 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
         embed = discord.Embed(
             title="⛔ تم إيقاف التنبيهات",
             description="لن يتم إرسال تنبيهات الصلاة",
-            color=discord.Color.red(),
+            color=0xE74C3C,
         )
+        embed.set_thumbnail(url=BELL_ICON)
         await interaction.response.send_message(embed=embed)
 
     @tasks.loop(minutes=1)
@@ -75,12 +81,15 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
                 self.notified_prayers.add(key)
                 ar_name = PRAYER_NAMES_AR.get(key, key)
                 emoji = PRAYER_EMOJIS.get(key, "🕌")
+                color = PRAYER_COLORS.get(key, 0xF1C40F)
 
                 embed = discord.Embed(
                     title=f"{emoji} حان وقت صلاة {ar_name}",
-                    description=f"حيّ على الصلاة! حان وقت صلاة **{ar_name}**\nأقيموا الصلاة بارك الله فيكم",
-                    color=discord.Color.gold(),
+                    description=f"حيّ على الصلاة! حان وقت صلاة **{ar_name}**\nأقيموا الصلاة بارك الله فيكم 🤲",
+                    color=color,
                 )
+                embed.set_thumbnail(url=MOSQUE_ICON)
+                embed.set_footer(text="﴿ إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا ﴾")
                 await channel.send(embed=embed)
 
         if now.hour == 0 and now.minute == 5:

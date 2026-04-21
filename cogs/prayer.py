@@ -10,8 +10,12 @@ from utils.prayer_times import (
     get_next_prayer,
     PRAYER_NAMES_AR,
     PRAYER_EMOJIS,
+    PRAYER_COLORS,
 )
 from utils.server_settings import get_server_city
+
+MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
+CALENDAR_ICON = "https://cdn-icons-png.flaticon.com/512/2898/2898849.png"
 
 
 class PrayerCog(commands.Cog, name="أوقات الصلاة"):
@@ -37,23 +41,38 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
 
         timings = await get_prayer_times(city, country, method)
         if not timings:
-            await interaction.followup.send("❌ حدث خطأ في جلب أوقات الصلاة. تأكد من اسم المدينة.")
+            embed = discord.Embed(
+                title="❌ خطأ في جلب أوقات الصلاة",
+                description="تأكد من اسم المدينة وكود الدولة",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         formatted = format_prayer_times(timings)
         next_prayer = get_next_prayer(timings)
+        tz = timings.get("_timezone", "UTC")
 
         embed = discord.Embed(
-            title=f"🕌 أوقات الصلاة - {city}",
-            description=formatted,
-            color=discord.Color.green(),
+            title=f"🕌 أوقات الصلاة",
+            description=f"📍 **{city}**, {country}\n🕐 التوقيت: {tz}\n\n{formatted}",
+            color=0x1ABC9C,
         )
+        embed.set_thumbnail(url=MOSQUE_ICON)
 
         if next_prayer:
             name, remaining = next_prayer
             ar_name = PRAYER_NAMES_AR.get(name, name)
             emoji = PRAYER_EMOJIS.get(name, "⏰")
-            embed.set_footer(text=f"{emoji} الصلاة القادمة: {ar_name} - بعد {remaining}")
+            color = PRAYER_COLORS.get(name, 0xF1C40F)
+            embed.color = color
+            embed.add_field(
+                name=f"{emoji} الصلاة القادمة",
+                value=f"**{ar_name}** ─ بعد **{remaining}**",
+                inline=False,
+            )
+
+        embed.set_footer(text="﴿ إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا ﴾")
 
         await interaction.followup.send(embed=embed)
 
@@ -75,22 +94,48 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
 
         hijri = await get_hijri_date(city, country)
         if not hijri:
-            await interaction.followup.send("❌ حدث خطأ في جلب التاريخ الهجري.")
+            embed = discord.Embed(
+                title="❌ خطأ في جلب التاريخ الهجري",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         date_str = hijri.get("date", "غير متوفر")
         day = hijri.get("day", "")
         month = hijri.get("month", {})
         month_ar = month.get("ar", "")
+        month_en = month.get("en", "")
         year = hijri.get("year", "")
         designation = hijri.get("designation", {}).get("abbrev", "")
+        weekday = hijri.get("weekday", {}).get("ar", "")
 
         embed = discord.Embed(
             title="📅 التاريخ الهجري",
-            color=discord.Color.blue(),
+            color=0x3498DB,
         )
-        embed.add_field(name="التاريخ", value=f"{day} {month_ar} {year} {designation}", inline=False)
-        embed.add_field(name="كامل", value=date_str, inline=False)
+        embed.set_thumbnail(url=CALENDAR_ICON)
+        embed.add_field(
+            name="📆 التاريخ",
+            value=f"**{day} {month_ar} {year} {designation}**",
+            inline=False,
+        )
+        embed.add_field(
+            name="📝 بالإنجليزي",
+            value=f"{day} {month_en} {year}",
+            inline=True,
+        )
+        embed.add_field(
+            name="🗓️ اليوم",
+            value=weekday or "—",
+            inline=True,
+        )
+        embed.add_field(
+            name="📋 كامل",
+            value=f"`{date_str}`",
+            inline=False,
+        )
+        embed.set_footer(text="﴿ وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى ﴾")
 
         await interaction.followup.send(embed=embed)
 
@@ -112,7 +157,11 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
 
         timings = await get_prayer_times(city, country)
         if not timings:
-            await interaction.followup.send("❌ حدث خطأ في جلب أوقات الصلاة.")
+            embed = discord.Embed(
+                title="❌ خطأ في جلب أوقات الصلاة",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         next_p = get_next_prayer(timings)
@@ -120,15 +169,23 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
             name, remaining = next_p
             ar_name = PRAYER_NAMES_AR.get(name, name)
             emoji = PRAYER_EMOJIS.get(name, "⏰")
+            color = PRAYER_COLORS.get(name, 0xF1C40F)
             embed = discord.Embed(
                 title=f"{emoji} الصلاة القادمة: {ar_name}",
-                description=f"متبقي **{remaining}** على صلاة {ar_name}",
-                color=discord.Color.gold(),
+                description=f"⏳ متبقي **{remaining}** على صلاة **{ar_name}**\n📍 {city}, {country}",
+                color=color,
             )
+            embed.set_thumbnail(url=MOSQUE_ICON)
+            embed.set_footer(text="حيّ على الصلاة ─ حيّ على الفلاح")
             await interaction.followup.send(embed=embed)
         else:
-            await interaction.followup.send("🌙 انتهت أوقات صلاة اليوم. بارك الله فيكم!")
-
+            embed = discord.Embed(
+                title="🌙 انتهت أوقات صلاة اليوم",
+                description="بارك الله فيكم! سيتم عرض أوقات غداً إن شاء الله",
+                color=0x2C3E50,
+            )
+            embed.set_thumbnail(url=MOSQUE_ICON)
+            await interaction.followup.send(embed=embed)
 
     def _resolve_location(self, interaction, city, country, method):
         if not city and interaction.guild_id:

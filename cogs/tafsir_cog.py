@@ -4,6 +4,8 @@ from discord.ext import commands
 
 from utils.tafsir import get_tafsir
 
+QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
+
 
 class TafsirCog(commands.Cog, name="التفسير"):
     def __init__(self, bot: commands.Bot):
@@ -20,12 +22,22 @@ class TafsirCog(commands.Cog, name="التفسير"):
         await interaction.response.defer()
 
         if surah < 1 or surah > 114:
-            await interaction.followup.send("❌ رقم السورة يجب أن يكون بين 1 و 114.")
+            embed = discord.Embed(
+                title="❌ رقم سورة غير صحيح",
+                description="رقم السورة يجب أن يكون بين 1 و 114",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         result = await get_tafsir(surah, ayah)
         if not result:
-            await interaction.followup.send("❌ حدث خطأ. تأكد من رقم السورة والآية.")
+            embed = discord.Embed(
+                title="❌ خطأ في جلب التفسير",
+                description="تأكد من رقم السورة والآية",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         text = result["tafsir"] or result["text"]
@@ -34,20 +46,21 @@ class TafsirCog(commands.Cog, name="التفسير"):
         for i, chunk in enumerate(chunks):
             if i == 0:
                 embed = discord.Embed(
-                    title=f"📖 تفسير سورة {result['surah_name']} - الآية {result['ayah_number']}",
+                    title=f"📖 تفسير سورة {result['surah_name']} ─ الآية {result['ayah_number']}",
                     description=chunk,
-                    color=discord.Color.dark_green(),
+                    color=0x196F3D,
                 )
-                if len(chunks) > 1:
-                    embed.set_footer(text=f"الجزء {i+1} من {len(chunks)}")
-                await interaction.followup.send(embed=embed)
+                embed.set_thumbnail(url=QURAN_ICON)
             else:
                 embed = discord.Embed(
                     description=chunk,
-                    color=discord.Color.dark_green(),
+                    color=0x196F3D,
                 )
-                embed.set_footer(text=f"الجزء {i+1} من {len(chunks)}")
-                await interaction.followup.send(embed=embed)
+            if len(chunks) > 1:
+                embed.set_footer(text=f"الجزء {i+1} من {len(chunks)} ─ التفسير الميسر")
+            else:
+                embed.set_footer(text="التفسير الميسر ─ ﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ ﴾")
+            await interaction.followup.send(embed=embed)
 
     @staticmethod
     def _chunk_text(text: str, max_len: int) -> list[str]:

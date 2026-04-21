@@ -4,6 +4,8 @@ from discord.ext import commands
 
 from utils.quran import get_random_verse, get_verse
 
+QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
+
 
 class QuranCog(commands.Cog, name="القرآن"):
     def __init__(self, bot: commands.Bot):
@@ -15,17 +17,31 @@ class QuranCog(commands.Cog, name="القرآن"):
 
         verse = await get_random_verse()
         if not verse:
-            await interaction.followup.send("❌ حدث خطأ في جلب الآية.")
+            embed = discord.Embed(
+                title="❌ خطأ في جلب الآية",
+                description="حاول مرة أخرى لاحقاً",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         embed = discord.Embed(
             title="📖 آية قرآنية",
-            description=f"```\n{verse['text']}\n```",
-            color=discord.Color.dark_green(),
+            description=f"\n{verse['text']}\n",
+            color=0x196F3D,
         )
-        embed.set_footer(
-            text=f"سورة {verse['surah_name']} ({verse['surah_english']}) - الآية {verse['ayah_number']}"
+        embed.set_thumbnail(url=QURAN_ICON)
+        embed.add_field(
+            name="📍 السورة",
+            value=f"**{verse['surah_name']}** ({verse['surah_english']})",
+            inline=True,
         )
+        embed.add_field(
+            name="🔢 رقم الآية",
+            value=str(verse["ayah_number"]),
+            inline=True,
+        )
+        embed.set_footer(text="﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="surah-ayah", description="📖 عرض آية محددة من سورة معينة")
@@ -39,22 +55,41 @@ class QuranCog(commands.Cog, name="القرآن"):
         await interaction.response.defer()
 
         if surah < 1 or surah > 114:
-            await interaction.followup.send("❌ رقم السورة يجب أن يكون بين 1 و 114.")
+            embed = discord.Embed(
+                title="❌ رقم سورة غير صحيح",
+                description="رقم السورة يجب أن يكون بين 1 و 114",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         verse = await get_verse(surah, ayah)
         if not verse:
-            await interaction.followup.send("❌ حدث خطأ. تأكد من رقم السورة والآية.")
+            embed = discord.Embed(
+                title="❌ خطأ في جلب الآية",
+                description="تأكد من رقم السورة والآية",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         embed = discord.Embed(
             title="📖 آية قرآنية",
-            description=f"```\n{verse['text']}\n```",
-            color=discord.Color.dark_green(),
+            description=f"\n{verse['text']}\n",
+            color=0x196F3D,
         )
-        embed.set_footer(
-            text=f"سورة {verse['surah_name']} ({verse['surah_english']}) - الآية {verse['ayah_number']}"
+        embed.set_thumbnail(url=QURAN_ICON)
+        embed.add_field(
+            name="📍 السورة",
+            value=f"**{verse['surah_name']}** ({verse['surah_english']})",
+            inline=True,
         )
+        embed.add_field(
+            name="🔢 رقم الآية",
+            value=str(verse["ayah_number"]),
+            inline=True,
+        )
+        embed.set_footer(text="﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾")
         await interaction.followup.send(embed=embed)
 
 

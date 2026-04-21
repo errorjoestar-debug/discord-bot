@@ -12,8 +12,25 @@ from utils.events import get_today_events
 
 log = logging.getLogger(__name__)
 
-MORNING_TIME = time(5, 30)   # 5:30 AM - after Fajr
-EVENING_TIME = time(16, 0)   # 4:00 PM - after Asr
+MORNING_TIME = time(5, 30)
+EVENING_TIME = time(16, 0)
+
+MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
+BOOK_ICON = "https://cdn-icons-png.flaticon.com/512/201/201614.png"
+CALENDAR_ICON = "https://cdn-icons-png.flaticon.com/512/2898/2898849.png"
+
+AZKAR_CONFIG = {
+    "morning": {
+        "title": "☀️ أذكار الصباح",
+        "color": 0xFF8C00,
+        "footer": "لا تنسَ ذكر الله ☀️ ﴿ وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ ﴾",
+    },
+    "evening": {
+        "title": "🌇 أذكار المساء",
+        "color": 0x7B68EE,
+        "footer": "لا تنسَ ذكر الله 🌇 ﴿ وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ غُرُوبِ الشَّمْسِ ﴾",
+    },
+}
 
 
 class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
@@ -42,12 +59,14 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
             title="✅ تم تفعيل الأذكار التلقائية",
             description=(
                 "سيتم إرسال:\n"
-                "☀️ أذكار الصباح - بعد الفجر\n"
-                "🌇 أذكار المساء - بعد العصر\n"
-                "📅 المناسبات الإسلامية - تلقائياً"
+                "☀️ أذكار الصباح ─ بعد الفجر\n"
+                "🌇 أذكار المساء ─ بعد العصر\n"
+                "📅 المناسبات الإسلامية ─ تلقائياً"
             ),
-            color=discord.Color.green(),
+            color=0x27AE60,
         )
+        embed.set_thumbnail(url=MOSQUE_ICON)
+        embed.set_footer(text="﴿ وَاذْكُر رَّبَّكَ كَثِيرًا ﴾")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="azkar-off", description="🔕 إيقاف إرسال الأذكار التلقائية")
@@ -58,7 +77,8 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
 
         embed = discord.Embed(
             title="⛔ تم إيقاف الأذكار التلقائية",
-            color=discord.Color.red(),
+            description="لن يتم إرسال أذكار تلقائية",
+            color=0xE74C3C,
         )
         await interaction.response.send_message(embed=embed)
 
@@ -68,7 +88,11 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
 
         hijri = await get_hijri_date()
         if not hijri:
-            await interaction.followup.send("❌ حدث خطأ في جلب التاريخ الهجري.")
+            embed = discord.Embed(
+                title="❌ خطأ في جلب التاريخ الهجري",
+                color=0xE74C3C,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         hijri_month = int(hijri.get("month", {}).get("number", 1))
@@ -78,23 +102,30 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
         upcoming = get_upcoming_events(hijri_month, hijri_day, days_ahead=90)
 
         if not upcoming:
-            await interaction.followup.send("لا توجد مناسبات إسلامية قريبة.")
+            embed = discord.Embed(
+                title="📅 المناسبات الإسلامية",
+                description="لا توجد مناسبات إسلامية قريبة",
+                color=0x3498DB,
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         embed = discord.Embed(
             title="📅 المناسبات الإسلامية القادمة",
-            color=discord.Color.blue(),
+            color=0x3498DB,
         )
+        embed.set_thumbnail(url=CALENDAR_ICON)
 
         for ev in upcoming[:5]:
             days = ev["days_until"]
-            when = "اليوم! 🎉" if days == 0 else f"بعد {days} يوم"
+            when = "🎉 اليوم!" if days == 0 else f"⏳ بعد {days} يوم"
             embed.add_field(
-                name=f"{ev['name_ar']}",
+                name=f"🕌 {ev['name_ar']}",
                 value=f"{when}\n{ev['description']}",
                 inline=False,
             )
 
+        embed.set_footer(text="﴿ وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى ﴾")
         await interaction.followup.send(embed=embed)
 
     @tasks.loop(minutes=5)
@@ -109,32 +140,44 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
         now = datetime.now()
         current_time = now.time()
 
-        # Reset flags at midnight
         if current_time.hour == 0:
             self.morning_sent = False
             self.evening_sent = False
 
-        # Morning azkar
         if not self.morning_sent and current_time >= MORNING_TIME:
             self.morning_sent = True
+            config = AZKAR_CONFIG["morning"]
             azkar = get_morning_azkar()
-            text = format_azkar(azkar, "أذكار الصباح ☀️")
-            for chunk in self._chunk_text(text, 4096):
-                embed = discord.Embed(description=chunk, color=discord.Color.orange())
-                embed.set_footer(text="لا تنسَ ذكر الله ☀️")
+            text = format_azkar(azkar, config["title"])
+            chunks = self._chunk_text(text, 4096)
+            for i, chunk in enumerate(chunks):
+                embed = discord.Embed(
+                    title=config["title"] if i == 0 else None,
+                    description=chunk,
+                    color=config["color"],
+                )
+                if i == 0:
+                    embed.set_thumbnail(url=BOOK_ICON)
+                embed.set_footer(text=config["footer"])
                 await channel.send(embed=embed)
 
-        # Evening azkar
         if not self.evening_sent and current_time >= EVENING_TIME:
             self.evening_sent = True
+            config = AZKAR_CONFIG["evening"]
             azkar = get_evening_azkar()
-            text = format_azkar(azkar, "أذكار المساء 🌇")
-            for chunk in self._chunk_text(text, 4096):
-                embed = discord.Embed(description=chunk, color=discord.Color.purple())
-                embed.set_footer(text="لا تنسَ ذكر الله 🌇")
+            text = format_azkar(azkar, config["title"])
+            chunks = self._chunk_text(text, 4096)
+            for i, chunk in enumerate(chunks):
+                embed = discord.Embed(
+                    title=config["title"] if i == 0 else None,
+                    description=chunk,
+                    color=config["color"],
+                )
+                if i == 0:
+                    embed.set_thumbnail(url=BOOK_ICON)
+                embed.set_footer(text=config["footer"])
                 await channel.send(embed=embed)
 
-        # Islamic events check
         if current_time.hour == 8 and current_time.minute < 5:
             hijri = await get_hijri_date()
             if hijri:
@@ -146,8 +189,10 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
                     embed = discord.Embed(
                         title=f"🕌 {ev['name_ar']}",
                         description=ev["description"],
-                        color=discord.Color.gold(),
+                        color=0xF1C40F,
                     )
+                    embed.set_thumbnail(url=CALENDAR_ICON)
+                    embed.set_footer(text="﴿ وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى ﴾")
                     await channel.send(embed=embed)
 
     @auto_azkar_loop.before_loop

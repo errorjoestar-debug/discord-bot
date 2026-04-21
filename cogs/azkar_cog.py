@@ -11,6 +11,27 @@ from utils.azkar import (
     format_azkar,
 )
 
+AZKAR_CONFIG = {
+    "morning": {
+        "title": "☀️ أذكار الصباح",
+        "color": 0xFF8C00,
+        "footer": "لا تنسَ ذكر الله ☀️ ﴿ وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ ﴾",
+    },
+    "evening": {
+        "title": "🌇 أذكار المساء",
+        "color": 0x7B68EE,
+        "footer": "لا تنسَ ذكر الله 🌇 ﴿ وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ غُرُوبِ الشَّمْسِ ﴾",
+    },
+    "sleep": {
+        "title": "🌙 أذكار النوم",
+        "color": 0x1A237E,
+        "footer": "لا تنسَ ذكر الله قبل النوم 🌙 ﴿ إِنَّ فِي خَلْقِ السَّمَاوَاتِ وَالْأَرْضِ ﴾",
+    },
+}
+
+BOOK_ICON = "https://cdn-icons-png.flaticon.com/512/201/201614.png"
+DUA_ICON = "https://cdn-icons-png.flaticon.com/512/2913/2913062.png"
+
 
 class AzkarCog(commands.Cog, name="الأذكار"):
     def __init__(self, bot: commands.Bot):
@@ -20,30 +41,37 @@ class AzkarCog(commands.Cog, name="الأذكار"):
     async def morning_azkar(self, interaction: discord.Interaction):
         await interaction.response.defer()
         azkar = get_morning_azkar()
-        text = format_azkar(azkar, "أذكار الصباح ☀️")
-
-        for chunk in self._chunk_text(text, 4096):
-            embed = discord.Embed(description=chunk, color=discord.Color.orange())
-            await interaction.followup.send(embed=embed)
+        await self._send_azkar(interaction, azkar, "morning")
 
     @app_commands.command(name="evening-azkar", description="🌇 عرض أذكار المساء")
     async def evening_azkar(self, interaction: discord.Interaction):
         await interaction.response.defer()
         azkar = get_evening_azkar()
-        text = format_azkar(azkar, "أذكار المساء 🌇")
-
-        for chunk in self._chunk_text(text, 4096):
-            embed = discord.Embed(description=chunk, color=discord.Color.purple())
-            await interaction.followup.send(embed=embed)
+        await self._send_azkar(interaction, azkar, "evening")
 
     @app_commands.command(name="sleep-azkar", description="🌙 عرض أذكار النوم")
     async def sleep_azkar(self, interaction: discord.Interaction):
         await interaction.response.defer()
         azkar = get_sleep_azkar()
-        text = format_azkar(azkar, "أذكار النوم 🌙")
+        await self._send_azkar(interaction, azkar, "sleep")
 
-        for chunk in self._chunk_text(text, 4096):
-            embed = discord.Embed(description=chunk, color=discord.Color.dark_blue())
+    async def _send_azkar(self, interaction, azkar, azkar_type):
+        config = AZKAR_CONFIG[azkar_type]
+        text = format_azkar(azkar, config["title"])
+        chunks = self._chunk_text(text, 4096)
+
+        for i, chunk in enumerate(chunks):
+            embed = discord.Embed(
+                title=config["title"] if i == 0 else None,
+                description=chunk,
+                color=config["color"],
+            )
+            if i == 0:
+                embed.set_thumbnail(url=BOOK_ICON)
+            if len(chunks) > 1:
+                embed.set_footer(text=f"الجزء {i+1} من {len(chunks)} ─ {config['footer']}")
+            else:
+                embed.set_footer(text=config["footer"])
             await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="hadith", description="📖 حديث شريف عشوائي")
@@ -51,10 +79,13 @@ class AzkarCog(commands.Cog, name="الأذكار"):
         h = get_random_hadith()
         embed = discord.Embed(
             title="📖 حديث شريف",
-            description=h["text"],
-            color=discord.Color.green(),
+            description=f"```\n{h['text']}\n```",
+            color=0x27AE60,
         )
-        embed.set_footer(text=f"الراوي: {h['narrator']} | المصدر: {h['source']}")
+        embed.set_thumbnail(url=BOOK_ICON)
+        embed.add_field(name="الراوي", value=h["narrator"], inline=True)
+        embed.add_field(name="المصدر", value=h["source"], inline=True)
+        embed.set_footer(text="﴿ مَّن يُطِعِ الرَّسُولَ فَقَدْ أَطَاعَ اللَّهَ ﴾")
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="dua", description="🤲 دعاء عشوائي من القرآن")
@@ -62,10 +93,12 @@ class AzkarCog(commands.Cog, name="الأذكار"):
         d = get_random_dua()
         embed = discord.Embed(
             title="🤲 دعاء",
-            description=d["text"],
-            color=discord.Color.teal(),
+            description=f"```\n{d['text']}\n```",
+            color=0x1ABC9C,
         )
-        embed.set_footer(text=f"المصدر: {d['source']}")
+        embed.set_thumbnail(url=DUA_ICON)
+        embed.add_field(name="المصدر", value=d["source"], inline=False)
+        embed.set_footer(text="﴿ ادْعُونِي أَسْتَجِبْ لَكُمْ ﴾")
         await interaction.response.send_message(embed=embed)
 
     @staticmethod

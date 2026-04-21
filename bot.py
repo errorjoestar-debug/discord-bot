@@ -3,7 +3,9 @@ import sys
 import logging
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+BOT_DIR = Path(__file__).parent.resolve()
+os.chdir(BOT_DIR)
+sys.path.insert(0, str(BOT_DIR))
 
 import discord
 from discord.ext import commands

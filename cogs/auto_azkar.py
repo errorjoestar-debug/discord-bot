@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, time
 
 import discord
+from discord import app_commands
 from discord.ext import commands, tasks
 
 from utils.azkar import get_morning_azkar, get_evening_azkar, format_azkar

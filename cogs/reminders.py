@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 
 import discord
+from discord import app_commands
 from discord.ext import commands, tasks
 
 from utils.prayer_times import get_prayer_times, PRAYER_NAMES_AR, PRAYER_EMOJIS

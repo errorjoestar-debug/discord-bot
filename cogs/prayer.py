@@ -14,15 +14,15 @@ from utils.prayer_times import (
 )
 from utils.server_settings import get_server_city
 
-MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
-CALENDAR_ICON = "https://cdn-icons-png.flaticon.com/512/2898/2898849.png"
+MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/2382/2382006.png"
+CALENDAR_ICON = "https://cdn-icons-png.flaticon.com/512/3658/3658802.png"
 
 
 class PrayerCog(commands.Cog, name="أوقات الصلاة"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="salah", description="🕌 عرض أوقات الصلاة لمدينة معينة")
+    @app_commands.command(name="salah", description="🕌 عرض أوقات الصلاة الخمس لمدينة معينة")
     @app_commands.describe(
         city="اسم المدينة (مثال: Cairo)",
         country="كود الدولة (مثال: EG)",
@@ -42,8 +42,8 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
         timings = await get_prayer_times(city, country, method)
         if not timings:
             embed = discord.Embed(
-                title="❌ خطأ في جلب أوقات الصلاة",
-                description="تأكد من اسم المدينة وكود الدولة",
+                title="❌ تعذّر جلب أوقات الصلاة",
+                description="تأكّد من صِحّة اسم المدينة وكود الدولة وحاول مرّة أخرى",
                 color=0xE74C3C,
             )
             await interaction.followup.send(embed=embed)
@@ -54,11 +54,11 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
         tz = timings.get("_timezone", "UTC")
 
         embed = discord.Embed(
-            title=f"🕌 أوقات الصلاة",
-            description=f"📍 **{city}**, {country}\n🕐 التوقيت: {tz}\n\n{formatted}",
+            title="�️ أوقات الصلاة",
+            description=f"📍 **{city}**، {country}\n🕐 التوقيت: {tz}\n\n{formatted}",
             color=0x1ABC9C,
         )
-        embed.set_thumbnail(url=MOSQUE_ICON)
+        embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/2382/2382006.png")
 
         if next_prayer:
             name, remaining, actual_time = next_prayer
@@ -72,11 +72,11 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
                 inline=False,
             )
 
-        embed.set_footer(text="﴿ إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا ﴾")
+        embed.set_footer(text="﴿ إِنَّ ٱلصَّلَوٰةَ كَانَتْ عَلَى ٱلْمُؤْمِنِينَ كِتَـٰبًا مَّوْقُوتًا ﴾")
 
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="hijri", description="📅 عرض التاريخ الهجري")
+    @app_commands.command(name="hijri", description="📅 عرض التاريخ الهجري مع تفاصيل اليوم والشهر")
     @app_commands.describe(
         city="اسم المدينة (مثال: Cairo)",
         country="كود الدولة (مثال: EG)",
@@ -95,7 +95,8 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
         hijri = await get_hijri_date(city, country, method)
         if not hijri:
             embed = discord.Embed(
-                title="❌ خطأ في جلب التاريخ الهجري",
+                title="❌ تعذّر جلب التاريخ الهجري",
+                description="حاول مرّة أخرى لاحقًا",
                 color=0xE74C3C,
             )
             await interaction.followup.send(embed=embed)
@@ -135,11 +136,11 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
             value=f"`{date_str}`",
             inline=False,
         )
-        embed.set_footer(text="﴿ وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَى ﴾")
+        embed.set_footer(text="﴿ وَتَعَـٰوَنُوا عَلَى ٱلْبِرِّ وَٱلتَّقْوَىٰ ﴾")
 
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="athan", description="⏰ تنبيه بالصلاة القادمة")
+    @app_commands.command(name="athan", description="⏰ عرض الصلاة القادمة مع الوقت المتبقّي")
     @app_commands.describe(
         city="اسم المدينة (مثال: Cairo)",
         country="كود الدولة (مثال: EG)",
@@ -158,7 +159,8 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
         timings = await get_prayer_times(city, country, method)
         if not timings:
             embed = discord.Embed(
-                title="❌ خطأ في جلب أوقات الصلاة",
+                title="❌ تعذّر جلب أوقات الصلاة",
+                description="حاول مرّة أخرى لاحقًا",
                 color=0xE74C3C,
             )
             await interaction.followup.send(embed=embed)
@@ -172,16 +174,16 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
             color = PRAYER_COLORS.get(name, 0xF1C40F)
             embed = discord.Embed(
                 title=f"{emoji} الصلاة القادمة: {ar_name}",
-                description=f"🕐 وقت الأذان: **{actual_time}**\n⏳ متبقي **{remaining}** على صلاة **{ar_name}**\n📍 {city}, {country}",
+                description=f"🕐 وقت الأذان: **{actual_time}**\n⏳ متبقّي **{remaining}** على صلاة **{ar_name}**\n📍 **{city}**، {country}",
                 color=color,
             )
-            embed.set_thumbnail(url=MOSQUE_ICON)
+            embed.set_thumbnail(url="https://cdn-icons-png.flaticon.com/512/2382/2382006.png")
             embed.set_footer(text="حيّ على الصلاة ─ حيّ على الفلاح")
             await interaction.followup.send(embed=embed)
         else:
             embed = discord.Embed(
                 title="🌙 انتهت أوقات صلاة اليوم",
-                description="بارك الله فيكم! سيتم عرض أوقات غداً إن شاء الله",
+                description="بارك الله فيكم! غدًا إن شاء الله سيتم عرض الأوقات",
                 color=0x2C3E50,
             )
             embed.set_thumbnail(url=MOSQUE_ICON)

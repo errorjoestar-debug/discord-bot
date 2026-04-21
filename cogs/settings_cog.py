@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from utils.server_settings import set_server_city, get_server_city
 
-GEAR_ICON = "https://cdn-icons-png.flaticon.com/512/1269/1269202.png"
+GEAR_ICON = "https://cdn-icons-png.flaticon.com/512/6464/6464105.png"
 
 METHODS = {
     1: "University of Islamic Sciences, Karachi",
@@ -28,7 +28,7 @@ class SettingsCog(commands.Cog, name="إعدادات السيرفر"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="set-city", description="⚙️ حفظ مدينتك لأوقات الصلاة")
+    @app_commands.command(name="set-city", description="⚙️ حفظ مدينتك لحساب أوقات الصلاة تلقائيًا")
     @app_commands.describe(
         city="اسم المدينة (مثال: Cairo, Dubai, Riyadh)",
         country="كود الدولة (مثال: EG, AE, SA)",
@@ -63,7 +63,7 @@ class SettingsCog(commands.Cog, name="إعدادات السيرفر"):
         embed.set_footer(text="دلوقتي أوامر الصلاة هتستخدم المدينة دي تلقائياً")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="settings", description="⚙️ عرض إعدادات السيرفر")
+    @app_commands.command(name="settings", description="⚙️ عرض إعدادات السيرفر الحالية")
     async def show_settings(self, interaction: discord.Interaction):
         if not interaction.guild_id:
             embed = discord.Embed(

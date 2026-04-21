@@ -7,8 +7,8 @@ from pathlib import Path
 from utils.quran import get_random_verse, get_verse
 from utils.quran_audio import get_reciters, get_reciter_by_id, get_ayah_audio_url, get_random_allah_name
 
-QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
-SPEAKER_ICON = "https://cdn-icons-png.flaticon.com/512/732/732078.png"
+QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/3564/3564299.png"
+SPEAKER_ICON = "https://cdn-icons-png.flaticon.com/512/4248/4248710.png"
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -51,7 +51,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         self.voice_clients: dict[int, discord.VoiceClient] = {}
         self.current_reciter: dict[int, str] = {}
 
-    @app_commands.command(name="quran-play", description="🔊 تشغيل آية قرآنية في الفويس")
+    @app_commands.command(name="quran-play", description="🔊 تشغيل تلاوة آية قرآنية في الروم الصوتي")
     @app_commands.describe(
         surah="رقم السورة (1-114)",
         ayah="رقم الآية",
@@ -68,7 +68,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         if not interaction.user.voice:
             embed = discord.Embed(
                 title="❌ لازم تكون في روم صوتي",
-                description="ادخل روم صوتي الأول وبعدين شغّل القرآن",
+                description="ادخل روم صوتي الأوّل وبعدين شغّل القرآن",
                 color=0xE74C3C,
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -85,7 +85,8 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
 
         if not verse:
             embed = discord.Embed(
-                title="❌ خطأ في جلب الآية",
+                title="❌ تعذّر جلب الآية",
+                description="حاول مرّة أخرى لاحقًا",
                 color=0xE74C3C,
             )
             await interaction.followup.send(embed=embed)
@@ -105,7 +106,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
                 self.voice_clients[guild_id] = vc
             except Exception as e:
                 embed = discord.Embed(
-                    title="❌ مش قادر أدخل الفويس",
+                    title="❌ تعذّر الدخول للروم الصوتي",
                     description=str(e),
                     color=0xE74C3C,
                 )
@@ -120,7 +121,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         reciter_name = reciter_info["name"] if reciter_info else reciter_id
 
         embed = discord.Embed(
-            title="� يتم تشغيل آية قرآنية",
+            title="🔊 يتم تشغيل تلاوة قرآنية",
             description=f"\n{verse['text']}\n",
             color=0x196F3D,
         )
@@ -144,7 +145,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
 
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="quran-stop", description="⏹️ إيقاف القرآن والخروج من الفويس")
+    @app_commands.command(name="quran-stop", description="⏹️ إيقاف التلاوة والخروج من الروم الصوتي")
     async def quran_stop(self, interaction: discord.Interaction):
         guild_id = interaction.guild_id
         if guild_id in self.voice_clients:
@@ -154,20 +155,20 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
             await vc.disconnect()
             del self.voice_clients[guild_id]
             embed = discord.Embed(
-                title="⏹️ تم إيقاف القرآن",
+                title="⏹️ تم إيقاف التلاوة",
                 description="تم الخروج من الروم الصوتي",
                 color=0x95A5A6,
             )
             await interaction.response.send_message(embed=embed)
         else:
             embed = discord.Embed(
-                title="❌ مش في فويس",
-                description="البوت مش موجود في أي روم صوتي",
+                title="❌ لا توجد تلاوة قيد التشغيل",
+                description="البوت ليس موجودًا في أي روم صوتي",
                 color=0xE74C3C,
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.command(name="reciters", description="🎤 عرض القُرّاء المتاحين")
+    @app_commands.command(name="reciters", description="🎤 عرض القُرّاء المتاحين للتلاوة")
     async def list_reciters(self, interaction: discord.Interaction):
         reciters = get_reciters()
         lines = []
@@ -180,10 +181,10 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
             color=0x196F3D,
         )
         embed.set_thumbnail(url=SPEAKER_ICON)
-        embed.set_footer(text="اختر القارئ من القائمة في أمر /quran-play")
+        embed.set_footer(text="اختر القارئ من القائمة في أمر /quran-play ─ ﴿ وَرَتِّلِ ٱلْقُرْءَانَ تَرْتِيلًا ﴾")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="allah-name", description="✨ اسم من أسماء الله الحسنى مع المعنى")
+    @app_commands.command(name="allah-name", description="✨ اسم من أسماء الله الحسنى مع معناه")
     @app_commands.describe(name="اختر اسم أو اتركه فارغ لعشوائي")
     @app_commands.autocomplete(name=allah_name_autocomplete)
     async def allah_name(self, interaction: discord.Interaction, name: str | None = None):

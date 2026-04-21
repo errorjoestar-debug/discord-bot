@@ -4,14 +4,14 @@ from discord.ext import commands
 
 from utils.tafsir import get_tafsir
 
-QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
+QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/3564/3564299.png"
 
 
 class TafsirCog(commands.Cog, name="التفسير"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="tafsir", description="📖 تفسير ميسر لآية من القرآن")
+    @app_commands.command(name="tafsir", description="📖 عرض التفسير الميسر لآية من القرآن الكريم")
     @app_commands.describe(surah="رقم السورة (1-114)", ayah="رقم الآية")
     async def tafsir(
         self,
@@ -34,7 +34,7 @@ class TafsirCog(commands.Cog, name="التفسير"):
         if not result:
             embed = discord.Embed(
                 title="❌ خطأ في جلب التفسير",
-                description="تأكد من رقم السورة والآية",
+                description="تأكّد من صِحّة رقم السورة والآية",
                 color=0xE74C3C,
             )
             await interaction.followup.send(embed=embed)

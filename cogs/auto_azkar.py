@@ -15,9 +15,9 @@ log = logging.getLogger(__name__)
 MORNING_TIME = time(5, 30)
 EVENING_TIME = time(16, 0)
 
-MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
-BOOK_ICON = "https://cdn-icons-png.flaticon.com/512/201/201614.png"
-CALENDAR_ICON = "https://cdn-icons-png.flaticon.com/512/2898/2898849.png"
+MOSQUE_ICON = "https://cdn-icons-png.flaticon.com/512/2382/2382006.png"
+BOOK_ICON = "https://cdn-icons-png.flaticon.com/512/2998/2998551.png"
+CALENDAR_ICON = "https://cdn-icons-png.flaticon.com/512/3658/3658802.png"
 
 AZKAR_CONFIG = {
     "morning": {
@@ -49,7 +49,7 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
             except ValueError:
                 log.warning("Invalid AZKAR_CHANNEL_ID")
 
-    @app_commands.command(name="azkar-on", description="🔔 تفعيل إرسال الأذكار تلقائياً في هذه القناة")
+    @app_commands.command(name="azkar-on", description="🔔 تفعيل إرسال الأذكار تلقائيًا في هذه القناة")
     async def enable_azkar(self, interaction: discord.Interaction):
         self.azkar_channel_id = interaction.channel_id
         if not self.auto_azkar_loop.is_running():
@@ -82,7 +82,7 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
         )
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="events", description="📅 عرض المناسبات الإسلامية القادمة")
+    @app_commands.command(name="events", description="📅 عرض المناسبات والأحداث الإسلامية القادمة")
     async def events(self, interaction: discord.Interaction):
         await interaction.response.defer()
 

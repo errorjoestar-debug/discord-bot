@@ -4,14 +4,14 @@ from discord.ext import commands
 
 from utils.quran import get_random_verse, get_verse
 
-QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
+QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/3564/3564299.png"
 
 
 class QuranCog(commands.Cog, name="القرآن"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="ayah", description="📖 آية قرآنية عشوائية")
+    @app_commands.command(name="ayah", description="📖 آية قرآنية عشوائية من القرآن الكريم")
     async def random_verse(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
@@ -19,7 +19,7 @@ class QuranCog(commands.Cog, name="القرآن"):
         if not verse:
             embed = discord.Embed(
                 title="❌ خطأ في جلب الآية",
-                description="حاول مرة أخرى لاحقاً",
+                description="حاول مرّة أخرى لاحقًا",
                 color=0xE74C3C,
             )
             await interaction.followup.send(embed=embed)
@@ -44,7 +44,7 @@ class QuranCog(commands.Cog, name="القرآن"):
         embed.set_footer(text="﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾")
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="surah-ayah", description="📖 عرض آية محددة من سورة معينة")
+    @app_commands.command(name="surah-ayah", description="📖 عرض آية محددة من سورة معيّنة")
     @app_commands.describe(surah="رقم السورة (1-114)", ayah="رقم الآية")
     async def specific_verse(
         self,
@@ -67,7 +67,7 @@ class QuranCog(commands.Cog, name="القرآن"):
         if not verse:
             embed = discord.Embed(
                 title="❌ خطأ في جلب الآية",
-                description="تأكد من رقم السورة والآية",
+                description="تأكّد من صِحّة رقم السورة والآية",
                 color=0xE74C3C,
             )
             await interaction.followup.send(embed=embed)

@@ -1,5 +1,6 @@
 import os
 import sys
+import traceback
 import logging
 from pathlib import Path
 
@@ -18,6 +19,8 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 log = logging.getLogger("muslim_bot")
+
+GUILD_ID = os.getenv("GUILD_ID", "")
 
 COGS = [
     "cogs.prayer",
@@ -41,11 +44,18 @@ class MuslimBot(commands.Bot):
             try:
                 await self.load_extension(cog)
                 log.info(f"Loaded cog: {cog}")
-            except Exception as e:
-                log.error(f"Failed to load cog {cog}: {e}")
+            except Exception:
+                log.error(f"Failed to load cog {cog}:\n{traceback.format_exc()}")
 
-        synced = await self.tree.sync()
-        log.info(f"Synced {len(synced)} commands")
+        # Guild sync = instant, Global sync = up to 1 hour
+        if GUILD_ID:
+            guild = discord.Object(id=int(GUILD_ID))
+            self.tree.copy_global_to(guild=guild)
+            synced = await self.tree.sync(guild=guild)
+            log.info(f"Synced {len(synced)} commands to guild {GUILD_ID} (instant)")
+        else:
+            synced = await self.tree.sync()
+            log.info(f"Synced {len(synced)} commands globally (may take up to 1 hour)")
 
     async def on_ready(self):
         log.info(f"Bot ready: {self.user} (ID: {self.user.id})")

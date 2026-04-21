@@ -82,6 +82,13 @@ python bot.py
 | `/azkar-on` | 🔔 تفعيل إرسال الأذكار تلقائياً |
 | `/azkar-off` | 🔕 إيقاف الأذكار التلقائية |
 | `/events` | 📅 عرض المناسبات الإسلامية القادمة |
+| `/quran-play` | 🔊 تشغيل آية قرآنية في الفويس |
+| `/quran-stop` | ⏹️ إيقاف القرآن والخروج من الفويس |
+| `/reciters` | 🎤 عرض القُرّاء المتاحين |
+| `/tafsir surah:1 ayah:1` | 📖 تفسير ميسر لآية |
+| `/allah-name` | ✨ اسم من أسماء الله الحسنى |
+| `/set-city city:Cairo country:EG` | ⚙️ حفظ مدينتك للسيرفر |
+| `/settings` | ⚙️ عرض إعدادات السيرفر |
 
 ## 📁 هيكل المشروع
 
@@ -93,21 +100,29 @@ discord-bot/
 ├── cogs/
 │   ├── prayer.py          # أوامر الصلاة والتاريخ الهجري
 │   ├── azkar_cog.py       # أوامر الأذكار والأحاديث والأدعية
-│   ├── quran_cog.py       # أوامر القرآن
+│   ├── quran_cog.py       # أوامر القرآن نصي
+│   ├── quran_voice.py     # القرآن صوتي في الفويس
+│   ├── tafsir_cog.py      # تفسير الآيات
+│   ├── settings_cog.py    # إعدادات السيرفر
 │   ├── reminders.py       # تنبيهات الصلاة التلقائية
 │   └── auto_azkar.py      # أذكار تلقائية + مناسبات
 ├── utils/
 │   ├── prayer_times.py    # API أوقات الصلاة (Aladhan)
 │   ├── azkar.py           # تحميل وتنسيق الأذكار
 │   ├── quran.py           # API القرآن (alquran.cloud)
-│   └── events.py          # المناسبات الإسلامية
+│   ├── quran_audio.py     # روابط القرآن الصوتي
+│   ├── tafsir.py          # API التفسير
+│   ├── events.py          # المناسبات الإسلامية
+│   └── server_settings.py # إعدادات السيرفر
 └── data/
     ├── azkar_morning.json  # أذكار الصباح
     ├── azkar_evening.json  # أذكار المساء
     ├── azkar_sleep.json    # أذكار النوم
     ├── hadith.json         # الأحاديث
     ├── dua.json            # الأدعية
-    └── islamic_events.json # المناسبات الإسلامية
+    ├── islamic_events.json # المناسبات الإسلامية
+    ├── reciters.json       # القُرّاء
+    └── allah_names.json    # أسماء الله الحسنى
 ```
 
 ## 🔗 APIs المستخدمة

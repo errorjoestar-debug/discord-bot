@@ -11,6 +11,7 @@ from utils.prayer_times import (
     PRAYER_NAMES_AR,
     PRAYER_EMOJIS,
 )
+from utils.server_settings import get_server_city
 
 
 class PrayerCog(commands.Cog, name="أوقات الصلاة"):
@@ -32,8 +33,7 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
     ):
         await interaction.response.defer()
 
-        city = city or os.getenv("PRAYER_CITY", "Cairo")
-        country = country or os.getenv("PRAYER_COUNTRY", "EG")
+        city, country, method = self._resolve_location(interaction, city, country, method)
 
         timings = await get_prayer_times(city, country, method)
         if not timings:
@@ -67,11 +67,11 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
         interaction: discord.Interaction,
         city: str | None = None,
         country: str | None = None,
+        method: int | None = None,
     ):
         await interaction.response.defer()
 
-        city = city or os.getenv("PRAYER_CITY", "Cairo")
-        country = country or os.getenv("PRAYER_COUNTRY", "EG")
+        city, country, method = self._resolve_location(interaction, city, country, method)
 
         hijri = await get_hijri_date(city, country)
         if not hijri:
@@ -104,11 +104,11 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
         interaction: discord.Interaction,
         city: str | None = None,
         country: str | None = None,
+        method: int | None = None,
     ):
         await interaction.response.defer()
 
-        city = city or os.getenv("PRAYER_CITY", "Cairo")
-        country = country or os.getenv("PRAYER_COUNTRY", "EG")
+        city, country, method = self._resolve_location(interaction, city, country, method)
 
         timings = await get_prayer_times(city, country)
         if not timings:
@@ -128,6 +128,19 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
             await interaction.followup.send(embed=embed)
         else:
             await interaction.followup.send("🌙 انتهت أوقات صلاة اليوم. بارك الله فيكم!")
+
+
+    def _resolve_location(self, interaction, city, country, method):
+        if not city and interaction.guild_id:
+            saved = get_server_city(interaction.guild_id)
+            if saved:
+                city = city or saved[0]
+                country = country or saved[1]
+                method = method or saved[2]
+        city = city or os.getenv("PRAYER_CITY", "Cairo")
+        country = country or os.getenv("PRAYER_COUNTRY", "EG")
+        method = method or int(os.getenv("PRAYER_METHOD", "5"))
+        return city, country, method
 
 
 async def setup(bot: commands.Bot):

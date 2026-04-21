@@ -26,6 +26,9 @@ COGS = [
     "cogs.prayer",
     "cogs.azkar_cog",
     "cogs.quran_cog",
+    "cogs.quran_voice",
+    "cogs.tafsir_cog",
+    "cogs.settings_cog",
     "cogs.reminders",
     "cogs.auto_azkar",
 ]

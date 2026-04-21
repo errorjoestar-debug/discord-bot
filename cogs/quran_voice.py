@@ -5,7 +5,7 @@ from discord.ext import commands
 from pathlib import Path
 
 from utils.quran import get_random_verse, get_verse
-from utils.quran_audio import get_reciters, get_reciter_by_id, get_ayah_audio_url
+from utils.quran_audio import get_reciters, get_reciter_by_id, get_ayah_audio_url, get_random_allah_name
 
 QURAN_ICON = "https://cdn-icons-png.flaticon.com/512/331/331008.png"
 SPEAKER_ICON = "https://cdn-icons-png.flaticon.com/512/732/732078.png"
@@ -91,7 +91,7 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
             await interaction.followup.send(embed=embed)
             return
 
-        audio_url = get_ayah_audio_url(verse["surah_number"] * 1000 + verse["ayah_number"], reciter_id)
+        audio_url = get_ayah_audio_url(verse["absolute_number"], reciter_id)
         reciter_info = get_reciter_by_id(reciter_id)
 
         voice_channel = interaction.user.voice.channel
@@ -194,7 +194,6 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
             if not selected:
                 selected = get_random_allah_name()
         else:
-            from utils.quran_audio import get_random_allah_name
             selected = get_random_allah_name()
 
         embed = discord.Embed(

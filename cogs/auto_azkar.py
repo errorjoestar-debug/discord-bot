@@ -1,13 +1,13 @@
 import os
 import logging
-from datetime import datetime, time
+from datetime import datetime, time, timezone
 
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 
 from utils.azkar import get_morning_azkar, get_evening_azkar, format_azkar
-from utils.prayer_times import get_hijri_date
+from utils.prayer_times import get_prayer_times, get_hijri_date
 from utils.events import get_today_events
 
 log = logging.getLogger(__name__)
@@ -137,7 +137,13 @@ class AutoAzkarCog(commands.Cog, name="الأذكار التلقائية"):
         if not channel:
             return
 
-        now = datetime.now()
+        timings = await get_prayer_times()
+        tz_name = timings.get("_timezone", "UTC") if timings else "UTC"
+        try:
+            from zoneinfo import ZoneInfo
+            now = datetime.now(ZoneInfo(tz_name))
+        except Exception:
+            now = datetime.now(timezone.utc)
         current_time = now.time()
 
         if current_time.hour == 0:

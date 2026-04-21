@@ -44,7 +44,8 @@ async def get_prayer_times(
 ) -> dict | None:
     city = city or os.getenv("PRAYER_CITY", "Cairo")
     country = country or os.getenv("PRAYER_COUNTRY", "EG")
-    method = method or int(os.getenv("PRAYER_METHOD", "5"))
+    if method is None:
+        method = int(os.getenv("PRAYER_METHOD", "5"))
 
     params = {"city": city, "country": country, "method": method}
 
@@ -71,7 +72,8 @@ async def get_hijri_date(
 ) -> dict | None:
     city = city or os.getenv("PRAYER_CITY", "Cairo")
     country = country or os.getenv("PRAYER_COUNTRY", "EG")
-    method = method or int(os.getenv("PRAYER_METHOD", "5"))
+    if method is None:
+        method = int(os.getenv("PRAYER_METHOD", "5"))
 
     params = {"city": city, "country": country, "method": method}
 

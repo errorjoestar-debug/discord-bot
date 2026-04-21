@@ -92,7 +92,7 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
 
         city, country, method = self._resolve_location(interaction, city, country, method)
 
-        hijri = await get_hijri_date(city, country)
+        hijri = await get_hijri_date(city, country, method)
         if not hijri:
             embed = discord.Embed(
                 title="❌ خطأ في جلب التاريخ الهجري",
@@ -155,7 +155,7 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
 
         city, country, method = self._resolve_location(interaction, city, country, method)
 
-        timings = await get_prayer_times(city, country)
+        timings = await get_prayer_times(city, country, method)
         if not timings:
             embed = discord.Embed(
                 title="❌ خطأ في جلب أوقات الصلاة",
@@ -193,10 +193,12 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
             if saved:
                 city = city or saved[0]
                 country = country or saved[1]
-                method = method or saved[2]
+                if method is None:
+                    method = saved[2]
         city = city or os.getenv("PRAYER_CITY", "Cairo")
         country = country or os.getenv("PRAYER_COUNTRY", "EG")
-        method = method or int(os.getenv("PRAYER_METHOD", "5"))
+        if method is None:
+            method = int(os.getenv("PRAYER_METHOD", "5"))
         return city, country, method
 
 

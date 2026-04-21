@@ -23,6 +23,7 @@ async def get_random_verse() -> dict | None:
                     "surah_english": ayah["surah"]["englishName"],
                     "ayah_number": ayah["numberInSurah"],
                     "surah_number": ayah["surah"]["number"],
+                    "absolute_number": ayah["number"],
                 }
     except Exception:
         return None
@@ -46,6 +47,7 @@ async def get_verse(surah: int, ayah: int) -> dict | None:
                     "surah_english": a["surah"]["englishName"],
                     "ayah_number": a["numberInSurah"],
                     "surah_number": a["surah"]["number"],
+                    "absolute_number": a["number"],
                 }
     except Exception:
         return None

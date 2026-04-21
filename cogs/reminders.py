@@ -7,6 +7,7 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from utils.prayer_times import get_prayer_times, PRAYER_NAMES_AR, PRAYER_EMOJIS, PRAYER_COLORS
+from utils.server_settings import get_server_city
 
 log = logging.getLogger(__name__)
 
@@ -68,7 +69,12 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
         if not channel:
             return
 
-        timings = await get_prayer_times()
+        city, country, method = None, None, None
+        if hasattr(channel, "guild") and channel.guild:
+            saved = get_server_city(channel.guild.id)
+            if saved:
+                city, country, method = saved
+        timings = await get_prayer_times(city, country, method)
         if not timings:
             return
 

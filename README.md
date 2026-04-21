@@ -20,14 +20,40 @@
 ### 1. المتطلبات
 - Python 3.11+
 - Discord Bot Token
+- **FFmpeg** (مطلوب لتشغيل الصوت)
 
-### 2. التثبيت
+### 2. تثبيت FFmpeg
+
+**مهم:** FFmpeg مطلوب لتشغيل الصوت في الرومات الصوتية.
+
+**Linux/Ubuntu/Debian:**
+```bash
+apt-get update
+apt-get install -y ffmpeg
+```
+
+**macOS:**
+```bash
+brew install ffmpeg
+```
+
+**Windows:**
+- حمل FFmpeg من [ffmpeg.org](https://ffmpeg.org/download.html)
+- أضفه إلى PATH
+
+**أو استخدام Docker (موصى به):**
+```bash
+docker build -t muslim-bot .
+docker run -d --env-file .env muslim-bot
+```
+
+### 3. تثبيت المكتبات
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. الإعداد
+### 4. الإعداد
 
 انسخ ملف `.env.example` إلى `.env` وعدّل القيم:
 

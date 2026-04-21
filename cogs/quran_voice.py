@@ -1,4 +1,6 @@
 import json
+import asyncio
+import shutil
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -54,6 +56,10 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         self.current_track: dict[int, dict] = {}
         self.looping: dict[int, bool] = {}
 
+    def _check_ffmpeg(self) -> bool:
+        """Check if FFmpeg is installed."""
+        return shutil.which("ffmpeg") is not None
+
     @app_commands.command(name="quran-play", description="🔊 تشغيل تلاوة آية قرآنية في الروم الصوتي")
     @app_commands.describe(
         surah="رقم السورة (1-114)",
@@ -68,10 +74,35 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         ayah: int | None = None,
         reciter: str | None = None,
     ):
+        # Check if FFmpeg is installed
+        if not self._check_ffmpeg():
+            embed = discord.Embed(
+                title="❌ FFmpeg غير مثبت",
+                description="FFmpeg مطلوب لتشغيل الصوت\n\n**الحل:**\n1. تثبيت FFmpeg: `apt-get install ffmpeg`\n2. أو استخدام Dockerfile المضاف",
+                color=0xE74C3C,
+            )
+            embed.set_footer(text="MuslimBot")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
         if not interaction.user.voice:
             embed = discord.Embed(
                 title="❌ أنت لست في روم صوتي",
                 description="يجب أن تكون في روم صوتي لاستخدام هذا الأمر",
+                color=0xE74C3C,
+            )
+            embed.set_footer(text="MuslimBot")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        # Check bot permissions
+        bot_member = interaction.guild.me
+        permissions = interaction.user.voice.channel.permissions_for(bot_member)
+        
+        if not permissions.connect or not permissions.speak:
+            embed = discord.Embed(
+                title="❌ البوت لا يمتلك صلاحيات كافية",
+                description="تأكد من أن البوت لديه صلاحيات:\n- Connect (الاتصال)\n- Speak (التحدث)\n- Use Voice Activity (استخدام النشاط الصوتي)",
                 color=0xE74C3C,
             )
             embed.set_footer(text="MuslimBot")
@@ -100,6 +131,11 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
         audio_url = get_ayah_audio_url(verse["absolute_number"], reciter_id)
         reciter_info = get_reciter_by_id(reciter_id)
 
+        # Log for debugging
+        print(f"Audio URL: {audio_url}")
+        print(f"Verse: {verse}")
+        print(f"Reciter ID: {reciter_id}")
+
         voice_channel = interaction.user.voice.channel
         guild_id = interaction.guild_id
 
@@ -107,22 +143,57 @@ class QuranVoiceCog(commands.Cog, name="القرآن صوتي"):
             vc = self.voice_clients[guild_id]
         else:
             try:
-                vc = await voice_channel.connect()
+                # Add timeout and better error handling with codec
+                vc = await voice_channel.connect(
+                    timeout=30.0,
+                    self_mute=False,
+                    self_deaf=False,
+                )
                 self.voice_clients[guild_id] = vc
+            except asyncio.TimeoutError:
+                embed = discord.Embed(
+                    title="❌ انتهت مهلة الاتصال بالروم الصوتي",
+                    description="حاول مرّة أخرى لاحقًا",
+                    color=0xE74C3C,
+                )
+                embed.set_footer(text="MuslimBot")
+                await interaction.followup.send(embed=embed)
+                return
             except Exception as e:
+                print(f"Voice connection error: {e}")
                 embed = discord.Embed(
                     title="❌ تعذّر الدخول للروم الصوتي",
-                    description=str(e),
+                    description=f"خطأ: {str(e)}\n\nتأكد من أن البوت لديه صلاحيات الصوت",
                     color=0xE74C3C,
                 )
                 embed.set_footer(text="MuslimBot")
                 await interaction.followup.send(embed=embed)
                 return
 
-        source = discord.FFmpegPCMAudio(audio_url)
-        if vc.is_playing():
-            vc.stop()
-        vc.play(source)
+        try:
+            # Try different FFmpeg options for better compatibility
+            source = discord.FFmpegPCMAudio(
+                audio_url,
+                before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+                options="-vn -sn -dn"
+            )
+            if vc.is_playing():
+                vc.stop()
+            vc.play(source)
+        except Exception as e:
+            print(f"Error playing audio: {e}")
+            embed = discord.Embed(
+                title="❌ تعذّر تشغيل التلاوة",
+                description=f"خطأ: {str(e)}\n\n**المشكلة المحتملة:**\n1. مشكلة في الاتصال الصوتي مع Discord\n2. مشكلة في codec\n3. مشكلة في خادم Discord الصوتي",
+                color=0xE74C3C,
+            )
+            embed.add_field(name="Audio URL", value=audio_url, inline=False)
+            embed.add_field(name="الحل", value="حاول تغيير الروم الصوتي أو انتظر قليلاً", inline=False)
+            embed.set_footer(text="MuslimBot")
+            await interaction.followup.send(embed=embed)
+            if vc.is_connected():
+                await vc.disconnect()
+            return
 
         reciter_name = reciter_info["name"] if reciter_info else reciter_id
 

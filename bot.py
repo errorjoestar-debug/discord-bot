@@ -54,10 +54,20 @@ class MuslimBot(commands.Bot):
 
         # Guild sync = instant, Global sync = up to 1 hour
         if GUILD_ID:
-            guild = discord.Object(id=int(GUILD_ID))
-            self.tree.copy_global_to(guild=guild)
-            synced = await self.tree.sync(guild=guild)
-            log.info(f"Synced {len(synced)} commands to guild {GUILD_ID} (instant)")
+            try:
+                guild = discord.Object(id=int(GUILD_ID))
+                self.tree.copy_global_to(guild=guild)
+                synced = await self.tree.sync(guild=guild)
+                log.info(f"Synced {len(synced)} commands to guild {GUILD_ID} (instant)")
+            except discord.errors.Forbidden:
+                log.warning(f"Failed to sync to guild {GUILD_ID}, using global sync instead")
+                log.warning("Make sure the bot has 'applications.commands' permission")
+                synced = await self.tree.sync()
+                log.info(f"Synced {len(synced)} commands globally (may take up to 1 hour)")
+            except Exception as e:
+                log.error(f"Error syncing to guild: {e}, using global sync instead")
+                synced = await self.tree.sync()
+                log.info(f"Synced {len(synced)} commands globally (may take up to 1 hour)")
         else:
             synced = await self.tree.sync()
             log.info(f"Synced {len(synced)} commands globally (may take up to 1 hour)")

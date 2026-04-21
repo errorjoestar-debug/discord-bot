@@ -25,7 +25,7 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
             except ValueError:
                 log.warning("Invalid REMINDER_CHANNEL_ID in .env")
 
-    @app_commands.command(name="تفعيل-التنبيهات", description="تفعيل تنبيهات الصلاة في هذه القناة")
+    @app_commands.command(name="remind-on", description="🔔 تفعيل تنبيهات الصلاة في هذه القناة")
     async def enable_reminders(self, interaction: discord.Interaction):
         self.reminder_channel_id = interaction.channel_id
         if not self.check_prayers.is_running():
@@ -38,7 +38,7 @@ class RemindersCog(commands.Cog, name="التنبيهات"):
         )
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="إيقاف-التنبيهات", description="إيقاف تنبيهات الصلاة")
+    @app_commands.command(name="remind-off", description="🔕 إيقاف تنبيهات الصلاة")
     async def disable_reminders(self, interaction: discord.Interaction):
         self.reminder_channel_id = None
         self.notified_prayers.clear()

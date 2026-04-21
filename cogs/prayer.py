@@ -17,7 +17,7 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="صلاة", description="عرض أوقات الصلاة لمدينة معينة")
+    @app_commands.command(name="salah", description="🕌 عرض أوقات الصلاة لمدينة معينة")
     @app_commands.describe(
         city="اسم المدينة (مثال: Cairo)",
         country="كود الدولة (مثال: EG)",
@@ -57,7 +57,7 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
 
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="هجري", description="عرض التاريخ الهجري")
+    @app_commands.command(name="hijri", description="📅 عرض التاريخ الهجري")
     @app_commands.describe(
         city="اسم المدينة (مثال: Cairo)",
         country="كود الدولة (مثال: EG)",
@@ -94,7 +94,7 @@ class PrayerCog(commands.Cog, name="أوقات الصلاة"):
 
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="أذان", description="تنبيه بالصلاة القادمة")
+    @app_commands.command(name="athan", description="⏰ تنبيه بالصلاة القادمة")
     @app_commands.describe(
         city="اسم المدينة (مثال: Cairo)",
         country="كود الدولة (مثال: EG)",

@@ -9,7 +9,7 @@ class QuranCog(commands.Cog, name="القرآن"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="آية", description="آية قرآنية عشوائية")
+    @app_commands.command(name="ayah", description="📖 آية قرآنية عشوائية")
     async def random_verse(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
@@ -28,7 +28,7 @@ class QuranCog(commands.Cog, name="القرآن"):
         )
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="سورة-آية", description="عرض آية محددة من سورة معينة")
+    @app_commands.command(name="surah-ayah", description="📖 عرض آية محددة من سورة معينة")
     @app_commands.describe(surah="رقم السورة (1-114)", ayah="رقم الآية")
     async def specific_verse(
         self,

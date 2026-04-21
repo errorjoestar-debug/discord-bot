@@ -16,7 +16,7 @@ class AzkarCog(commands.Cog, name="الأذكار"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="أذكار-الصباح", description="عرض أذكار الصباح")
+    @app_commands.command(name="morning-azkar", description="☀️ عرض أذكار الصباح")
     async def morning_azkar(self, interaction: discord.Interaction):
         await interaction.response.defer()
         azkar = get_morning_azkar()
@@ -26,7 +26,7 @@ class AzkarCog(commands.Cog, name="الأذكار"):
             embed = discord.Embed(description=chunk, color=discord.Color.orange())
             await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="أذكار-المساء", description="عرض أذكار المساء")
+    @app_commands.command(name="evening-azkar", description="🌇 عرض أذكار المساء")
     async def evening_azkar(self, interaction: discord.Interaction):
         await interaction.response.defer()
         azkar = get_evening_azkar()
@@ -36,7 +36,7 @@ class AzkarCog(commands.Cog, name="الأذكار"):
             embed = discord.Embed(description=chunk, color=discord.Color.purple())
             await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="أذكار-النوم", description="عرض أذكار النوم")
+    @app_commands.command(name="sleep-azkar", description="🌙 عرض أذكار النوم")
     async def sleep_azkar(self, interaction: discord.Interaction):
         await interaction.response.defer()
         azkar = get_sleep_azkar()
@@ -46,7 +46,7 @@ class AzkarCog(commands.Cog, name="الأذكار"):
             embed = discord.Embed(description=chunk, color=discord.Color.dark_blue())
             await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="حديث", description="حديث شريف عشوائي")
+    @app_commands.command(name="hadith", description="📖 حديث شريف عشوائي")
     async def hadith(self, interaction: discord.Interaction):
         h = get_random_hadith()
         embed = discord.Embed(
@@ -57,7 +57,7 @@ class AzkarCog(commands.Cog, name="الأذكار"):
         embed.set_footer(text=f"الراوي: {h['narrator']} | المصدر: {h['source']}")
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="دعاء", description="دعاء عشوائي من القرآن")
+    @app_commands.command(name="dua", description="🤲 دعاء عشوائي من القرآن")
     async def dua(self, interaction: discord.Interaction):
         d = get_random_dua()
         embed = discord.Embed(

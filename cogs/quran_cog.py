@@ -1,8 +1,10 @@
+import io
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from utils.quran import get_random_verse, get_verse, get_surah, search_quran, get_surah_list
+from utils.quran_image import create_ayah_image
 
 QURAN_ICON = "https://images.unsplash.com/photo-1576413329366-5b2c6e0463e4?w=800&q=80"
 
@@ -25,24 +27,52 @@ class QuranCog(commands.Cog, name="القرآن"):
             await interaction.followup.send(embed=embed)
             return
 
-        embed = discord.Embed(
-            title="📖 آية قرآنية",
-            description=f"\n{verse['text']}\n",
-            color=0x0984E3,
-        )
-        embed.set_thumbnail(url=QURAN_ICON)
-        embed.add_field(
-            name="📍 السورة",
-            value=f"**{verse['surah_name']}** ({verse['surah_english']})",
-            inline=True,
-        )
-        embed.add_field(
-            name="🔢 رقم الآية",
-            value=str(verse["ayah_number"]),
-            inline=True,
-        )
-        embed.set_footer(text="﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾ • MuslimBot")
-        await interaction.followup.send(embed=embed)
+        # Create image
+        try:
+            image_bytes = create_ayah_image(
+                verse['text'],
+                verse['surah_name'],
+                verse['ayah_number']
+            )
+            file = discord.File(io.BytesIO(image_bytes), filename="ayah.png")
+            
+            embed = discord.Embed(
+                title="📖 آية قرآنية",
+                color=0x0984E3,
+            )
+            embed.add_field(
+                name="📍 السورة",
+                value=f"**{verse['surah_name']}** ({verse['surah_english']})",
+                inline=True,
+            )
+            embed.add_field(
+                name="🔢 رقم الآية",
+                value=str(verse["ayah_number"]),
+                inline=True,
+            )
+            embed.set_image(url="attachment://ayah.png")
+            embed.set_footer(text="﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾ • MuslimBot")
+            await interaction.followup.send(embed=embed, file=file)
+        except Exception as e:
+            # Fallback to text if image creation fails
+            embed = discord.Embed(
+                title="📖 آية قرآنية",
+                description=f"\n{verse['text']}\n",
+                color=0x0984E3,
+            )
+            embed.set_thumbnail(url=QURAN_ICON)
+            embed.add_field(
+                name="📍 السورة",
+                value=f"**{verse['surah_name']}** ({verse['surah_english']})",
+                inline=True,
+            )
+            embed.add_field(
+                name="🔢 رقم الآية",
+                value=str(verse["ayah_number"]),
+                inline=True,
+            )
+            embed.set_footer(text="﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾ • MuslimBot")
+            await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="surah-ayah", description="📖 عرض آية محددة من سورة معيّنة")
     @app_commands.describe(surah="رقم السورة (1-114)", ayah="رقم الآية")
@@ -73,24 +103,52 @@ class QuranCog(commands.Cog, name="القرآن"):
             await interaction.followup.send(embed=embed)
             return
 
-        embed = discord.Embed(
-            title="📖 آية قرآنية",
-            description=f"\n{verse['text']}\n",
-            color=0x0984E3,
-        )
-        embed.set_thumbnail(url=QURAN_ICON)
-        embed.add_field(
-            name="📍 السورة",
-            value=f"**{verse['surah_name']}** ({verse['surah_english']})",
-            inline=True,
-        )
-        embed.add_field(
-            name="🔢 رقم الآية",
-            value=str(verse["ayah_number"]),
-            inline=True,
-        )
-        embed.set_footer(text="﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾ • MuslimBot")
-        await interaction.followup.send(embed=embed)
+        # Create image
+        try:
+            image_bytes = create_ayah_image(
+                verse['text'],
+                verse['surah_name'],
+                verse['ayah_number']
+            )
+            file = discord.File(io.BytesIO(image_bytes), filename="ayah.png")
+            
+            embed = discord.Embed(
+                title="📖 آية قرآنية",
+                color=0x0984E3,
+            )
+            embed.add_field(
+                name="📍 السورة",
+                value=f"**{verse['surah_name']}** ({verse['surah_english']})",
+                inline=True,
+            )
+            embed.add_field(
+                name="🔢 رقم الآية",
+                value=str(verse["ayah_number"]),
+                inline=True,
+            )
+            embed.set_image(url="attachment://ayah.png")
+            embed.set_footer(text="﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾ • MuslimBot")
+            await interaction.followup.send(embed=embed, file=file)
+        except Exception as e:
+            # Fallback to text if image creation fails
+            embed = discord.Embed(
+                title="📖 آية قرآنية",
+                description=f"\n{verse['text']}\n",
+                color=0x0984E3,
+            )
+            embed.set_thumbnail(url=QURAN_ICON)
+            embed.add_field(
+                name="📍 السورة",
+                value=f"**{verse['surah_name']}** ({verse['surah_english']})",
+                inline=True,
+            )
+            embed.add_field(
+                name="🔢 رقم الآية",
+                value=str(verse["ayah_number"]),
+                inline=True,
+            )
+            embed.set_footer(text="﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾ • MuslimBot")
+            await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="surah", description="📖 عرض سورة كاملة من القرآن الكريم")
     @app_commands.describe(surah="رقم السورة (1-114)")

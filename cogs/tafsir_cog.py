@@ -1,8 +1,10 @@
+import io
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from utils.tafsir import get_tafsir
+from utils.quran_image import create_text_image
 
 QURAN_ICON = "https://images.unsplash.com/photo-1576413329366-5b2c6e0463e4?w=800&q=80"
 
@@ -44,6 +46,21 @@ class TafsirCog(commands.Cog, name="التفسير"):
 
         text = result["tafsir"] or result["text"]
 
+        # Try image first
+        try:
+            title = f"التفسير الميسر - سورة {result['surah_name']} آية {result['ayah_number']}"
+            img_bytes = await create_text_image(title, text, "﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ ﴾ • MuslimBot", "#8E44AD")
+            if img_bytes:
+                file = discord.File(io.BytesIO(img_bytes), filename="tafsir.png")
+                embed = discord.Embed(color=0x8E44AD)
+                embed.set_image(url="attachment://tafsir.png")
+                embed.set_footer(text="﴿ وَأَنزَلْنَا إِلَيْكَ الذِّكْرَ لِتُبَيِّنَ لِلنَّاسِ مَا نُزِّلَ إِلَيْهِمْ ﴾ • MuslimBot")
+                await interaction.followup.send(embed=embed, file=file)
+                return
+        except Exception:
+            pass
+
+        # Fallback to text
         chunks = self._chunk_text(text, 4096)
         for i, chunk in enumerate(chunks):
             if i == 0:
@@ -60,7 +77,7 @@ class TafsirCog(commands.Cog, name="التفسير"):
                     color=0x196F3D,
                 )
             if len(chunks) > 1:
-                embed.set_footer(text=f"الجزء {i+1} من {len(chunks)} • MuslimBot")
+                embed.set_footer(text=f"الجزء {i+1}/{len(chunks)} • MuslimBot")
             else:
                 embed.set_footer(text="التفسير الميسر ─ ﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ ﴾")
             await interaction.followup.send(embed=embed)
@@ -84,3 +101,4 @@ class TafsirCog(commands.Cog, name="التفسير"):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(TafsirCog(bot))
+

@@ -38,6 +38,8 @@ COGS = [
 class MuslimBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
+        intents.message_content = True  # Required for some features
+        intents.members = True  # Required for welcome messages
         super().__init__(
             command_prefix="!",
             intents=intents,
@@ -87,3 +89,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -40,7 +40,7 @@ class WelcomeCog(commands.Cog, name="الترحيب"):
         embed.set_thumbnail(url=MOSQUE_ICON)
         embed.add_field(
             name="📖 القرآن الكريم",
-            value="آيات عشوائية، سور كاملة، بحث في القرآن، تلاوة صوتية",
+            value="آيات عشوائية، سور كاملة، بحث في القرآن، تفسير",
             inline=False,
         )
         embed.add_field(

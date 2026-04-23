@@ -32,15 +32,6 @@ def set_user_setting(user_id: int, key: str, value: str | int):
     _save_user_settings(settings)
 
 
-def get_user_reciter(user_id: int) -> str | None:
-    settings = get_user_settings(user_id)
-    return settings.get("reciter")
-
-
-def set_user_reciter(user_id: int, reciter: str):
-    set_user_setting(user_id, "reciter", reciter)
-
-
 def get_user_city(user_id: int) -> tuple[str, str] | None:
     settings = get_user_settings(user_id)
     city = settings.get("city")
